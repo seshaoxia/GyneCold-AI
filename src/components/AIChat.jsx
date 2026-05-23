@@ -79,8 +79,8 @@ export default function AIChat() {
   };
 
   return (
-    <section ref={sectionRef} id="chat" className="relative z-10 w-full py-24">
-      <div className="w-full max-w-4xl mx-auto px-6">
+    <section ref={sectionRef} id="chat" className="py-24">
+      <div className="max-w-4xl mx-auto px-6">
         <div className="chat-section-title flex flex-col items-center text-center mb-12">
           <span className="text-xs font-mono text-gray-500 tracking-widest uppercase">AI Research Copilot</span>
           <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-4 text-white">

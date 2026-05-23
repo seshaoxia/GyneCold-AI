@@ -22,10 +22,8 @@ export default function Hero() {
   ];
 
   return (
-    <section ref={containerRef} className="relative w-full min-h-screen flex items-center justify-center px-6 pt-20">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black pointer-events-none" />
-
-      <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center">
+    <section ref={containerRef} className="min-h-screen flex items-center justify-center px-6 pt-20">
+      <div className="max-w-5xl mx-auto flex flex-col items-center text-center">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card mb-10 hero-title">
           <span className="pulse-dot" />
           <span className="text-xs font-mono text-gray-400 tracking-wider">AI RESEARCH PLATFORM v2.0</span>
@@ -53,7 +51,7 @@ export default function Hero() {
           </button>
         </div>
 
-        <div className="hero-stat grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl mx-auto">
+        <div className="hero-stat grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
           {stats.map((s, i) => (
             <div key={i} className="glass-card p-5 flex flex-col items-center text-center">
               <s.icon size={20} className="text-gray-400 mb-2" />

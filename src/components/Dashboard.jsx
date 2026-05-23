@@ -37,8 +37,8 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="dashboard" className="relative z-10 w-full py-24">
-      <div className="w-full max-w-7xl mx-auto px-6">
+    <section ref={sectionRef} id="dashboard" className="py-24">
+      <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col items-center text-center mb-16">
           <span className="text-xs font-mono text-gray-500 tracking-widest uppercase">Research Dashboard</span>
           <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-4 text-white">
