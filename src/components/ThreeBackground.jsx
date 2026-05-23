@@ -31,8 +31,8 @@ function DNAHelix() {
         const my = y;
         const mz = (z1 + z2) / 2;
         connectors.push({ start: new THREE.Vector3(x1, y, z1), end: new THREE.Vector3(x2, y, z2) });
-        spheres.push({ pos: [x1, y, z1], color: '#06d9c8' });
-        spheres.push({ pos: [x2, y, z2], color: '#8b5cf6' });
+        spheres.push({ pos: [x1, y, z1], color: '#ffffff' });
+        spheres.push({ pos: [x2, y, z2], color: '#888888' });
       }
     }
     return { points1, points2, connectors, spheres };
@@ -47,14 +47,14 @@ function DNAHelix() {
 
   return (
     <group ref={groupRef}>
-      <Line points={helix.points1} color="#06d9c8" lineWidth={1.5} transparent opacity={0.6} />
-      <Line points={helix.points2} color="#3b82f6" lineWidth={1.5} transparent opacity={0.6} />
+      <Line points={helix.points1} color="#ffffff" lineWidth={1} transparent opacity={0.35} />
+      <Line points={helix.points2} color="#888888" lineWidth={1} transparent opacity={0.35} />
       {helix.connectors.map((c, i) => (
-        <Line key={`conn-${i}`} points={[c.start, c.end]} color="#1e3a5f" lineWidth={0.6} transparent opacity={0.3} />
+        <Line key={`conn-${i}`} points={[c.start, c.end]} color="#333333" lineWidth={0.4} transparent opacity={0.2} />
       ))}
       {helix.spheres.map((s, i) => (
-        <Sphere key={`sphere-${i}`} position={s.pos} args={[0.08, 8, 8]}>
-          <meshStandardMaterial color={s.color} emissive={s.color} emissiveIntensity={0.8} />
+        <Sphere key={`sphere-${i}`} position={s.pos} args={[0.06, 8, 8]}>
+          <meshStandardMaterial color={s.color} emissive={s.color} emissiveIntensity={0.3} />
         </Sphere>
       ))}
     </group>
@@ -64,14 +64,14 @@ function DNAHelix() {
 function Particles() {
   const particlesRef = useRef();
   const particleData = useMemo(() => {
-    const count = 200;
+    const count = 150;
     const positions = new Float32Array(count * 3);
     const speeds = [];
     for (let i = 0; i < count; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 14;
       positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
       positions[i * 3 + 2] = (Math.random() - 0.5) * 8;
-      speeds.push(0.002 + Math.random() * 0.008);
+      speeds.push(0.002 + Math.random() * 0.006);
     }
     return { positions, speeds };
   }, []);
@@ -98,7 +98,7 @@ function Particles() {
           itemSize={3}
         />
       </bufferGeometry>
-      <pointsMaterial size={0.02} color="#06d9c8" transparent opacity={0.4} sizeAttenuation />
+      <pointsMaterial size={0.015} color="#ffffff" transparent opacity={0.25} sizeAttenuation />
     </points>
   );
 }
@@ -107,11 +107,11 @@ export default function ThreeBackground() {
   return (
     <div className="fixed inset-0 z-0 pointer-events-none">
       <Canvas camera={{ position: [0, 0, 8], fov: 50 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
-        <ambientLight intensity={0.2} />
-        <pointLight position={[10, 10, 10]} intensity={0.5} />
+        <ambientLight intensity={0.15} />
+        <pointLight position={[10, 10, 10]} intensity={0.3} />
         <DNAHelix />
         <Particles />
-        <fog attach="fog" args={['#060b14', 5, 20]} />
+        <fog attach="fog" args={['#000000', 5, 20]} />
       </Canvas>
     </div>
   );

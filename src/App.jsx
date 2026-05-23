@@ -33,7 +33,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="relative bg-navy-950 min-h-screen">
+    <div className="relative bg-black min-h-screen">
       <ThreeBackground />
       <div className="absolute inset-0 hex-grid pointer-events-none" />
       <Navbar />

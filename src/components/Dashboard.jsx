@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Activity, Users, FlaskConical, TrendingUp, Clock, Shield } from 'lucide-react';
+import { Activity, Users, FlaskConical, TrendingUp, Clock } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,10 +13,10 @@ const metrics = [
 ];
 
 const logs = [
-  { time: '14:32:15', event: '证型分析完成', detail: '寒凝血瘀证 — 置信度 97.2%', color: '#06d9c8' },
-  { time: '14:28:09', event: '知识库检索', detail: '匹配文献 23 篇，指南 3 篇', color: '#3b82f6' },
-  { time: '14:15:44', event: '舌象识别', detail: '舌淡紫，苔白滑 — 特征提取完成', color: '#8b5cf6' },
-  { time: '14:10:21', event: '新研究任务', detail: '温经汤加减方疗效 Meta 分析', color: '#f472b6' },
+  { time: '14:32:15', event: '证型分析完成', detail: '寒凝血瘀证 — 置信度 97.2%' },
+  { time: '14:28:09', event: '知识库检索', detail: '匹配文献 23 篇，指南 3 篇' },
+  { time: '14:15:44', event: '舌象识别', detail: '舌淡紫，苔白滑 — 特征提取完成' },
+  { time: '14:10:21', event: '新研究任务', detail: '温经汤加减方疗效 Meta 分析' },
 ];
 
 export default function Dashboard() {
@@ -39,8 +39,8 @@ export default function Dashboard() {
   return (
     <section ref={sectionRef} id="dashboard" className="relative z-10 max-w-7xl mx-auto px-6 py-24">
       <div className="flex flex-col items-center text-center mb-16">
-        <span className="text-xs font-mono text-accent-cyan tracking-widest uppercase">Research Dashboard</span>
-        <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-4">
+        <span className="text-xs font-mono text-gray-500 tracking-widest uppercase">Research Dashboard</span>
+        <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-4 text-white">
           研究数据<span className="gradient-text">全景监控</span>
         </h2>
         <p className="text-gray-500 max-w-xl">实时追踪 AI 模型运行状态，全面掌握妇科寒症研究数据动态</p>
@@ -50,28 +50,28 @@ export default function Dashboard() {
         {metrics.map((m, i) => (
           <div key={i} className="dash-card glass-card p-5">
             <div className="flex items-center justify-between mb-3">
-              <m.icon size={18} className="text-accent-cyan opacity-70" />
-              <span className={`text-[10px] font-mono ${m.up ? 'text-green-400' : 'text-red-400'}`}>{m.change}</span>
+              <m.icon size={18} className="text-gray-500" />
+              <span className={`text-[10px] font-mono ${m.up ? 'text-gray-400' : 'text-gray-600'}`}>{m.change}</span>
             </div>
             <div className="font-mono text-2xl font-bold text-white mb-1">{m.value}</div>
-            <div className="text-xs text-gray-500">{m.label}</div>
+            <div className="text-xs text-gray-600">{m.label}</div>
           </div>
         ))}
       </div>
 
       <div className="log-panel glass-card p-5 flex flex-col gap-3 max-w-2xl mx-auto">
         <div className="flex items-center gap-2 mb-2">
-          <Clock size={14} className="text-accent-cyan" />
-          <span className="text-xs font-mono text-gray-400 tracking-wider">SYSTEM LOG</span>
+          <Clock size={14} className="text-gray-500" />
+          <span className="text-xs font-mono text-gray-500 tracking-wider">SYSTEM LOG</span>
         </div>
         {logs.map((log, i) => (
           <div key={i} className="log-item flex gap-3 items-start pb-3 border-b border-white/[0.03] last:border-0 last:pb-0">
-            <span className="text-[10px] font-mono text-gray-600 shrink-0 mt-0.5">{log.time}</span>
+            <span className="text-[10px] font-mono text-gray-700 shrink-0 mt-0.5">{log.time}</span>
             <div>
               <div className="text-xs font-medium text-gray-300">{log.event}</div>
               <div className="text-[11px] text-gray-600">{log.detail}</div>
             </div>
-            <div className="ml-auto w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: log.color }} />
+            <div className="ml-auto w-1 h-1 rounded-full mt-1.5 shrink-0 bg-white/20" />
           </div>
         ))}
       </div>
