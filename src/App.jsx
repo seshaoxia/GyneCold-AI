@@ -16,6 +16,9 @@ export default function App() {
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
+      lerp: 0.1,
+      wheelMultiplier: 1,
+      touchMultiplier: 1,
     });
 
     lenisRef.current = lenis;
@@ -33,11 +36,11 @@ export default function App() {
   }, []);
 
   return (
-    <div className="relative bg-black min-h-screen">
+    <div className="relative w-full bg-black min-h-screen">
       <ThreeBackground />
       <div className="absolute inset-0 hex-grid pointer-events-none" />
       <Navbar />
-      <main className="relative z-10 w-full">
+      <main className="relative z-10 w-full flex flex-col items-center">
         <Hero />
         <Dashboard />
         <AIChat />
