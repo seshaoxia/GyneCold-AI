@@ -59,12 +59,12 @@ export default function Features() {
 
   return (
     <section ref={sectionRef} id="features" className="relative z-10 max-w-7xl mx-auto px-6 py-24">
-      <div className="text-center mb-16">
+      <div className="flex flex-col items-center text-center mb-16">
         <span className="text-xs font-mono text-accent-cyan tracking-widest uppercase">Core Capabilities</span>
         <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-4">
           核心技术<span className="gradient-text">能力</span>
         </h2>
-        <p className="text-gray-500 max-w-xl mx-auto">六大核心引擎，构建妇科寒症研究全链路 AI 解决方案</p>
+        <p className="text-gray-500 max-w-xl">六大核心引擎，构建妇科寒症研究全链路 AI 解决方案</p>
       </div>
 
       <div className="feature-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

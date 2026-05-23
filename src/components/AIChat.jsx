@@ -80,12 +80,12 @@ export default function AIChat() {
 
   return (
     <section ref={sectionRef} id="chat" className="relative z-10 max-w-4xl mx-auto px-6 py-24">
-      <div className="chat-section-title text-center mb-12">
+      <div className="chat-section-title flex flex-col items-center text-center mb-12">
         <span className="text-xs font-mono text-accent-cyan tracking-widest uppercase">AI Research Copilot</span>
         <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-4">
           GyneCold<span className="gradient-text"> AI 助手</span>
         </h2>
-        <p className="text-gray-500 max-w-xl mx-auto">基于大语言模型的智能科研对话系统，支持多轮深度学术问答</p>
+        <p className="text-gray-500 max-w-xl">基于大语言模型的智能科研对话系统，支持多轮深度学术问答</p>
       </div>
 
       <div className="chat-card glass-card overflow-hidden">
