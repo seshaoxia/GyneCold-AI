@@ -52,25 +52,27 @@ export default function Features() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="features" className="relative z-10 max-w-7xl mx-auto px-6 py-24">
-      <div className="flex flex-col items-center text-center mb-16">
-        <span className="text-xs font-mono text-gray-500 tracking-widest uppercase">Core Capabilities</span>
-        <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-4 text-white">
-          核心技术<span className="gradient-text">能力</span>
-        </h2>
-        <p className="text-gray-500 max-w-xl">六大核心引擎，构建妇科寒症研究全链路 AI 解决方案</p>
-      </div>
+    <section ref={sectionRef} id="features" className="relative z-10 w-full py-24">
+      <div className="w-full max-w-7xl mx-auto px-6">
+        <div className="flex flex-col items-center text-center mb-16">
+          <span className="text-xs font-mono text-gray-500 tracking-widest uppercase">Core Capabilities</span>
+          <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-4 text-white">
+            核心技术<span className="gradient-text">能力</span>
+          </h2>
+          <p className="text-gray-500 max-w-xl">六大核心引擎，构建妇科寒症研究全链路 AI 解决方案</p>
+        </div>
 
-      <div className="feature-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {features.map((f, i) => (
-          <div key={i} className="feature-card glass-card p-6 group cursor-default">
-            <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.04] flex items-center justify-center mb-4 group-hover:bg-white group-hover:border-white transition-all duration-500">
-              <f.icon size={18} className="text-gray-500 group-hover:text-black transition-colors duration-500" />
+        <div className="feature-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {features.map((f, i) => (
+            <div key={i} className="feature-card glass-card p-6 group cursor-default">
+              <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.04] flex items-center justify-center mb-4 group-hover:bg-white group-hover:border-white transition-all duration-500">
+                <f.icon size={18} className="text-gray-500 group-hover:text-black transition-colors duration-500" />
+              </div>
+              <h3 className="text-base font-semibold text-white mb-2">{f.title}</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">{f.desc}</p>
             </div>
-            <h3 className="text-base font-semibold text-white mb-2">{f.title}</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">{f.desc}</p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

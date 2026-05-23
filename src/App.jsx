@@ -37,7 +37,7 @@ export default function App() {
       <ThreeBackground />
       <div className="absolute inset-0 hex-grid pointer-events-none" />
       <Navbar />
-      <main className="relative z-10">
+      <main className="relative z-10 w-full">
         <Hero />
         <Dashboard />
         <AIChat />
