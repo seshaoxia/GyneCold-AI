@@ -143,6 +143,8 @@
   <script>
     let isLogin = true;
     const redirectTo = new URLSearchParams(window.location.search).get('redirect') || 'chat.html';
+    // TODO: 部署后替换为实际服务器地址
+    const API_BASE = 'http://192.168.2.145:5001';
 
     document.getElementById('toggleAuth').addEventListener('click', (e) => {
       e.preventDefault();
@@ -154,12 +156,10 @@
       document.getElementById('nameGroup').style.display = isLogin ? 'none' : 'block';
       document.getElementById('password2Group').style.display = isLogin ? 'none' : 'block';
       document.getElementById('apiKeyGroup').style.display = isLogin ? 'none' : 'block';
-      // 切换时控制 apiKey 是否必填
       document.getElementById('apiKey').required = !isLogin;
       document.getElementById('password2').required = !isLogin;
       document.getElementById('authBtn').textContent = isLogin ? '登录' : '注册';
       document.getElementById('authError').style.display = 'none';
-      // Re-bind toggle
       document.getElementById('toggleAuth').addEventListener('click', arguments.callee);
     });
 
@@ -169,7 +169,13 @@
       el.style.display = 'block';
     }
 
-    function handleAuth(e) {
+    function showLoading(loading) {
+      const btn = document.getElementById('authBtn');
+      btn.disabled = loading;
+      btn.textContent = loading ? (isLogin ? '登录中...' : '注册中...') : (isLogin ? '登录' : '注册');
+    }
+
+    async function handleAuth(e) {
       e.preventDefault();
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value.trim();
@@ -182,42 +188,50 @@
         return false;
       }
 
-      // 注册时必须填写 API Key
       if (!isLogin && !apiKey) {
         showError('请填写你的 API Key（DeepSeek / OpenRouter）');
         return false;
       }
 
-      // 注册时密码需两次一致
       if (!isLogin && password !== password2) {
         showError('两次输入的密码不一致');
         return false;
       }
 
-      const users = JSON.parse(localStorage.getItem('gynecold_users') || '{}');
+      showLoading(true);
+      try {
+        const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+        const body = isLogin
+          ? { username, password }
+          : { username, password, name, api_key: apiKey };
 
-      if (isLogin) {
-        if (!users[username]) {
-          showError('用户不存在，请先注册');
+        const resp = await fetch(API_BASE + endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await resp.json();
+
+        if (!resp.ok) {
+          showError(data.error || '操作失败');
           return false;
         }
-        if (users[username].password !== password) {
-          showError('密码错误');
-          return false;
+
+        if (isLogin) {
+          // 登录成功，保存用户信息到 localStorage
+          localStorage.setItem('gynecold_user', JSON.stringify(data.user));
+          window.location.href = redirectTo;
+        } else {
+          // 注册成功，自动登录
+          localStorage.setItem('gynecold_user', JSON.stringify({
+            username, name, api_key: apiKey,
+          }));
+          window.location.href = redirectTo;
         }
-        localStorage.setItem('gynecold_user', JSON.stringify({
-          username, name: users[username].name || username, api_key: users[username].api_key || '',
-        }));
-        window.location.href = redirectTo;
-      } else {
-        if (users[username]) {
-          showError('用户名已存在');
-          return false;
-        }
-        users[username] = { password, name, api_key: apiKey, created_at: new Date().toISOString() };
-        localStorage.setItem('gynecold_users', JSON.stringify(users));
-        localStorage.setItem('gynecold_user', JSON.stringify({ username, name, api_key: apiKey }));
-        window.location.href = redirectTo;
+      } catch (err) {
+        showError('无法连接到服务器，请检查网络或联系管理员');
+      } finally {
+        showLoading(false);
       }
       return false;
     }
