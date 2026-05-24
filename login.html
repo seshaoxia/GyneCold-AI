@@ -113,6 +113,15 @@
           <label>密码</label>
           <input type="password" id="password" placeholder="输入密码" required>
         </div>
+        <div class="form-group" id="apiKeyGroup" style="display:none;">
+          <label>API Key
+            <span style="font-weight:normal;color:#555;font-size:12px;">
+              （<a href="https://platform.deepseek.com/api_keys" target="_blank" style="color:#888;">DeepSeek</a> / <a href="https://openrouter.ai/keys" target="_blank" style="color:#888;">OpenRouter</a>）
+            </span>
+          </label>
+          <input type="password" id="apiKey" placeholder="sk-... 不填则使用平台的默认 Key">
+          <div style="font-size:11px;color:#444;margin-top:4px;">留空则使用平台提供的默认 API Key</div>
+        </div>
         <button type="submit" class="auth-btn" id="authBtn">登录</button>
       </form>
 
@@ -135,8 +144,10 @@
         ? '还没有账号？<a href="#" id="toggleAuth">立即注册</a>'
         : '已有账号？<a href="#" id="toggleAuth">立即登录</a>';
       document.getElementById('nameGroup').style.display = isLogin ? 'none' : 'block';
+      document.getElementById('apiKeyGroup').style.display = isLogin ? 'none' : 'block';
       document.getElementById('authBtn').textContent = isLogin ? '登录' : '注册';
       document.getElementById('authError').style.display = 'none';
+      // Re-bind toggle
       document.getElementById('toggleAuth').addEventListener('click', arguments.callee);
     });
 
@@ -151,6 +162,7 @@
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value.trim();
       const name = document.getElementById('regName').value.trim() || username;
+      const apiKey = document.getElementById('apiKey').value.trim();
 
       if (!username || !password) {
         showError('请填写用户名和密码');
@@ -169,7 +181,7 @@
           return false;
         }
         localStorage.setItem('gynecold_user', JSON.stringify({
-          username, name: users[username].name || username,
+          username, name: users[username].name || username, api_key: users[username].api_key || '',
         }));
         window.location.href = redirectTo;
       } else {
@@ -177,9 +189,9 @@
           showError('用户名已存在');
           return false;
         }
-        users[username] = { password, name, created_at: new Date().toISOString() };
+        users[username] = { password, name, api_key: apiKey, created_at: new Date().toISOString() };
         localStorage.setItem('gynecold_users', JSON.stringify(users));
-        localStorage.setItem('gynecold_user', JSON.stringify({ username, name }));
+        localStorage.setItem('gynecold_user', JSON.stringify({ username, name, api_key: apiKey }));
         window.location.href = redirectTo;
       }
       return false;

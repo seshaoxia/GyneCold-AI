@@ -326,6 +326,7 @@
     }
     const USERNAME = userData.name || userData.username;
     const USER_ID = 'gynecold-' + userData.username;
+    const USER_API_KEY = userData.api_key || '';
 
     document.getElementById('userName').textContent = USERNAME;
     document.getElementById('userAvatar').textContent = USERNAME.charAt(0).toUpperCase();
@@ -475,6 +476,7 @@
           body: JSON.stringify({
             message: fullText + fileContext,
             user_id: USER_ID,
+            api_key: USER_API_KEY,
           }),
         });
 
