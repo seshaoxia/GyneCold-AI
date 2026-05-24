@@ -154,6 +154,9 @@
       document.getElementById('nameGroup').style.display = isLogin ? 'none' : 'block';
       document.getElementById('password2Group').style.display = isLogin ? 'none' : 'block';
       document.getElementById('apiKeyGroup').style.display = isLogin ? 'none' : 'block';
+      // 切换时控制 apiKey 是否必填
+      document.getElementById('apiKey').required = !isLogin;
+      document.getElementById('password2').required = !isLogin;
       document.getElementById('authBtn').textContent = isLogin ? '登录' : '注册';
       document.getElementById('authError').style.display = 'none';
       // Re-bind toggle
