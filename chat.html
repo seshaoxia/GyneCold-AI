@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 分析 · GyneCold</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0a0a0a; --sidebar: #111; --border: #1a1a1a;
+      --text: #c0c0c0; --text-muted: #555; --accent: #fff;
+    }
+    body {
+      font-family: 'Inter', 'Noto Sans SC', sans-serif;
+      background: var(--bg); color: var(--text);
+      height: 100vh; overflow: hidden;
+    }
+
+    /* ---- Layout ---- */
+    .app { display: flex; height: 100vh; }
+
+    /* ---- Sidebar ---- */
+    .sidebar {
+      width: 260px; background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; flex-shrink: 0;
+    }
+    .sidebar-header {
+      padding: 20px 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-brand {
+      font-size: 16px; font-weight: 700; color: #fff;
+      text-decoration: none; display: flex; align-items: center; gap: 8px;
+    }
+    .sidebar-brand span { color: #888; }
+    .sidebar-user {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .sidebar-user .avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #fff; color: #000;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600;
+    }
+    .sidebar-user .logout {
+      margin-left: auto; color: #555; cursor: pointer; font-size: 12px;
+    }
+    .sidebar-user .logout:hover { color: #fff; }
+
+    .sidebar-content { flex: 1; overflow-y: auto; padding: 12px; }
+    .new-chat-btn {
+      width: 100%; padding: 10px; border-radius: 8px;
+      border: 1px dashed var(--border); background: transparent;
+      color: #888; cursor: pointer; font-size: 13px; margin-bottom: 16px;
+      transition: all 0.2s;
+    }
+    .new-chat-btn:hover { border-color: #333; color: #fff; }
+
+    .quick-questions { margin-bottom: 16px; }
+    .quick-questions h4 {
+      font-size: 11px; color: #555; text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 8px; font-weight: 500;
+    }
+    .quick-btn {
+      display: block; width: 100%; text-align: left;
+      padding: 8px 12px; border-radius: 6px;
+      background: transparent; border: none;
+      color: #777; font-size: 12px; cursor: pointer;
+      transition: all 0.2s; margin-bottom: 4px;
+    }
+    .quick-btn:hover { background: rgba(255,255,255,0.04); color: #fff; }
+
+    .sidebar-footer {
+      padding: 12px 16px; border-top: 1px solid var(--border);
+      font-size: 11px; color: #444;
+    }
+    .sidebar-footer a { color: #555; text-decoration: none; }
+    .sidebar-footer a:hover { color: #888; }
+
+    /* ---- Main - Chat ---- */
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    .chat-header {
+      padding: 14px 24px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .chat-header h1 { font-size: 16px; font-weight: 600; color: #fff; }
+    .chat-header .status {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: #555;
+    }
+    .chat-header .status-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #48bb78;
+    }
+
+    .messages {
+      flex: 1; overflow-y: auto; padding: 20px 24px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+
+    .message { display: flex; gap: 12px; max-width: 85%; }
+    .message.user { align-self: flex-end; flex-direction: row-reverse; }
+    .message.assistant { align-self: flex-start; }
+
+    .msg-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .message.user .msg-avatar { background: #fff; color: #000; }
+    .message.assistant .msg-avatar { background: #1a1a1a; color: #888; }
+
+    .msg-bubble {
+      padding: 10px 16px; border-radius: 14px;
+      font-size: 14px; line-height: 1.7; word-break: break-word;
+    }
+    .message.user .msg-bubble {
+      background: #fff; color: #000;
+      border-bottom-right-radius: 4px;
+    }
+    .message.assistant .msg-bubble {
+      background: rgba(255,255,255,0.04);
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg-bubble p { margin-bottom: 8px; }
+    .msg-bubble p:last-child { margin-bottom: 0; }
+    .msg-bubble ul, .msg-bubble ol { margin: 8px 0 8px 20px; }
+    .msg-bubble li { margin-bottom: 4px; }
+    .msg-bubble code {
+      background: rgba(255,255,255,0.06);
+      padding: 2px 6px; border-radius: 4px; font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .msg-bubble pre {
+      background: rgba(255,255,255,0.03);
+      padding: 12px; border-radius: 8px; overflow-x: auto;
+      margin: 8px 0; font-size: 13px;
+    }
+    .msg-bubble pre code { background: none; padding: 0; }
+    .msg-bubble strong { font-weight: 600; color: #fff; }
+    .msg-bubble a { color: #8af; text-decoration: none; }
+    .msg-bubble a:hover { text-decoration: underline; }
+    .msg-bubble table {
+      border-collapse: collapse; margin: 8px 0; width: 100%;
+      font-size: 13px;
+    }
+    .msg-bubble th, .msg-bubble td {
+      border: 1px solid var(--border);
+      padding: 6px 10px; text-align: left;
+    }
+    .msg-bubble th { background: rgba(255,255,255,0.04); color: #fff; font-weight: 500; }
+    .msg-bubble img {
+      max-width: 100%; border-radius: 8px; margin: 8px 0;
+    }
+
+    /* 打字机光标 */
+    .typing-cursor { animation: blink 1s step-end infinite; }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* 加载动画 */
+    .loading-dots { display: flex; gap: 4px; padding: 4px 0; }
+    .loading-dots span {
+      width: 6px; height: 6px; border-radius: 50%; background: #555;
+      animation: bounce 1.4s infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%,80%,100% { transform: scale(0.6); opacity: 0.3; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ---- Input ---- */
+    .input-area {
+      padding: 16px 24px 20px;
+      border-top: 1px solid var(--border);
+    }
+    .input-wrapper {
+      display: flex; gap: 8px; align-items: flex-end;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 4px 4px 4px 16px;
+      transition: border-color 0.2s;
+    }
+    .input-wrapper:focus-within { border-color: #333; }
+    .input-wrapper textarea {
+      flex: 1; resize: none; padding: 10px 0;
+      background: transparent; border: none;
+      color: #fff; font-size: 14px; line-height: 1.5;
+      outline: none; font-family: inherit; max-height: 120px;
+    }
+    .input-wrapper textarea::placeholder { color: #444; }
+    .input-actions { display: flex; gap: 4px; align-items: center; }
+    .input-actions button {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: transparent; border: none; color: #555;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; transition: all 0.2s;
+    }
+    .input-actions button:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .input-actions .send-btn {
+      width: auto; padding: 0 20px; background: #fff; color: #000;
+      border-radius: 10px; font-size: 13px; font-weight: 500;
+    }
+    .input-actions .send-btn:hover { background: #e5e5e5; }
+    .input-actions .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .input-hint {
+      margin-top: 6px; font-size: 11px; color: #333; text-align: right;
+    }
+
+    /* 图片上传预览 */
+    .upload-preview {
+      display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 0;
+    }
+    .upload-preview-item {
+      width: 60px; height: 60px; border-radius: 8px;
+      overflow: hidden; position: relative; border: 1px solid var(--border);
+    }
+    .upload-preview-item img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .upload-preview-item .remove {
+      position: absolute; top: 2px; right: 2px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: rgba(0,0,0,0.7); color: #fff; border: none;
+      font-size: 10px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+    }
+
+    /* 文件上传隐藏 */
+    #fileInput { display: none; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .message { max-width: 95%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-brand">GyneCold<span> AI</span></a>
+      </div>
+      <div class="sidebar-user" id="userInfo">
+        <div class="avatar" id="userAvatar">G</div>
+        <span id="userName">访客</span>
+        <span class="logout" onclick="logout()">退出</span>
+      </div>
+      <div class="sidebar-content">
+        <button class="new-chat-btn" onclick="resetChat()">+ 新建对话</button>
+        <div class="quick-questions">
+          <h4>快捷问题</h4>
+          <button class="quick-btn" onclick="quickQuestion('我想做差异表达分析')">📊 差异表达分析</button>
+          <button class="quick-btn" onclick="quickQuestion('帮我看有哪些分析模块')">🔍 查看分析模块</button>
+          <button class="quick-btn" onclick="quickQuestion('上传文件到后端做分析')">📤 上传文件分析</button>
+          <button class="quick-btn" onclick="quickQuestion('p值设为0.01，log2FC为1.5的差异分析')">⚙️ 参数配置</button>
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <a href="index.html">← 首页</a> · v0.1
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <div class="chat-header">
+        <h1>AI 分析助手</h1>
+        <div class="status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">连接中...</span>
+        </div>
+      </div>
+
+      <div class="messages" id="messages">
+        <div class="message assistant">
+          <div class="msg-avatar">🧬</div>
+          <div class="msg-bubble">
+            <p>你好！我是 GyneCold AI 分析助手。</p>
+            <p>我可以帮你做转录组差异表达分析，包括：</p>
+            <ul>
+              <li>上传表达矩阵和分组文件</li>
+              <li>配置分析参数（P值、log2FC、统计方法）</li>
+              <li>提交分析并追踪进度</li>
+              <li>展示结果（火山图、热图、PCA、差异基因表格）</li>
+            </ul>
+            <p>告诉我你的需求，我们开始吧！</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="upload-preview" id="uploadPreview"></div>
+        <div class="input-wrapper">
+          <textarea id="userInput" rows="1" placeholder="输入分析需求，或上传文件..."
+                    onkeydown="handleKeydown(event)" autofocus></textarea>
+          <div class="input-actions">
+            <button onclick="document.getElementById('fileInput').click()" title="上传文件">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </button>
+            <input type="file" id="fileInput" multiple accept=".csv,.tsv,.txt,.png,.jpg,.jpeg" onchange="handleFiles(this)">
+            <button class="send-btn" onclick="sendMessage()" id="sendBtn">发送</button>
+          </div>
+        </div>
+        <div class="input-hint">Enter 发送 · Shift+Enter 换行</div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ─── 用户信息 ────────────────────────────────────────
+    const userData = JSON.parse(localStorage.getItem('gynecold_user') || 'null');
+    const isLoggedIn = !!userData;
+    const USERNAME = userData ? (userData.name || userData.username) : '访客';
+    const USER_ID = 'gynecold-' + (userData ? userData.username : Math.random().toString(36).slice(2, 8));
+
+    document.getElementById('userName').textContent = USERNAME;
+    document.getElementById('userAvatar').textContent = USERNAME.charAt(0).toUpperCase();
+
+    function logout() {
+      localStorage.removeItem('gynecold_user');
+      window.location.href = 'index.html';
+    }
+
+    // ─── Agent API ───────────────────────────────────────
+    // TODO: 部署到云服务器后替换为公网 IP 或域名
+    const AGENT_API = 'http://192.168.2.145:5001';
+
+    // ─── DOM refs ────────────────────────────────────────
+    const messagesEl = document.getElementById('messages');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const uploadPreview = document.getElementById('uploadPreview');
+    const fileInput = document.getElementById('fileInput');
+    let pendingFiles = [];
+
+    // Auto-resize textarea
+    userInput.addEventListener('input', () => {
+      userInput.style.height = 'auto';
+      userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+    });
+
+    function handleKeydown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    // ─── 文件上传 ────────────────────────────────────────
+    function handleFiles(input) {
+      const files = Array.from(input.files);
+      pendingFiles = pendingFiles.concat(files);
+
+      uploadPreview.innerHTML = '';
+      for (const f of pendingFiles) {
+        const div = document.createElement('div');
+        div.className = 'upload-preview-item';
+        if (f.type.startsWith('image/')) {
+          const img = document.createElement('img');
+          img.src = URL.createObjectURL(f);
+          div.appendChild(img);
+        } else {
+          div.style.display = 'flex'; div.style.alignItems = 'center';
+          div.style.justifyContent = 'center';
+          div.style.fontSize = '11px'; div.style.color = '#888';
+          div.textContent = f.name.slice(-12);
+        }
+        const btn = document.createElement('button');
+        btn.className = 'remove'; btn.textContent = '✕';
+        btn.onclick = () => {
+          pendingFiles = pendingFiles.filter(x => x !== f);
+          div.remove();
+          if (!pendingFiles.length) uploadPreview.innerHTML = '';
+        };
+        div.appendChild(btn);
+        uploadPreview.appendChild(div);
+      }
+      input.value = '';
+    }
+
+    async function uploadFiles(files) {
+      const fileIds = [];
+      for (const f of files) {
+        if (f.type.startsWith('image/')) continue; // 图片不同步上传
+        const formData = new FormData();
+        formData.append('file', f);
+        try {
+          const resp = await fetch(`${AGENT_API}/api/upload`, { method: 'POST', body: formData });
+          if (resp.ok) {
+            const data = await resp.json();
+            fileIds.push(data.file_id);
+          }
+        } catch {}
+      }
+      return fileIds;
+    }
+
+    // ─── 快捷问题 ────────────────────────────────────────
+    function quickQuestion(text) {
+      userInput.value = text;
+      userInput.style.height = 'auto';
+      userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+      sendMessage();
+    }
+
+    // ─── 重置对话 ────────────────────────────────────────
+    async function resetChat() {
+      try {
+        await fetch(`${AGENT_API}/api/reset`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: USER_ID }),
+        });
+      } catch {}
+      messagesEl.innerHTML = '';
+      addMessage('assistant', '对话已重置。你好！有什么需要帮忙的？');
+    }
+
+    // ─── 发送消息 + 打字机效果 ───────────────────────────
+    let isLoading = false;
+
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      const hasFiles = pendingFiles.length > 0;
+      if (!text && !hasFiles) return;
+
+      // 如果有文件，先描述上传
+      const msgText = text || (hasFiles ? '上传文件分析' : '');
+      const fullText = msgText;
+
+      userInput.value = '';
+      userInput.style.height = 'auto';
+
+      // 显示用户消息
+      addMessage('user', fullText);
+
+      // 显示加载
+      const loadingId = showLoading();
+      setLoading(true);
+
+      try {
+        // 如果有文件先上传
+        let fileContext = '';
+        if (pendingFiles.length > 0) {
+          const uploaded = await uploadFiles(pendingFiles);
+          if (uploaded.length > 0) {
+            fileContext = ` (已上传文件: ${uploaded.join(', ')})`;
+          } else {
+            // 如果 Agent 没有独立的上传端点，把文件信息和消息一起发
+            fileContext = `\n[附带的文件: ${pendingFiles.map(f => f.name).join(', ')}]`;
+          }
+          pendingFiles = [];
+          uploadPreview.innerHTML = '';
+        }
+
+        removeLoading(loadingId);
+
+        const resp = await fetch(`${AGENT_API}/api/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: fullText + fileContext,
+            user_id: USER_ID,
+          }),
+        });
+
+        const data = await resp.json();
+        if (data.error) {
+          addMessage('assistant', '❌ ' + data.error);
+        } else {
+          // 打字机效果
+          await typeMessage('assistant', formatContent(data.reply));
+        }
+      } catch {
+        removeLoading(loadingId);
+        addMessage('assistant', '❌ 无法连接到 AI Agent 服务。请确认服务已启动。');
+      } finally {
+        setLoading(false);
+        userInput.focus();
+      }
+    }
+
+    // ─── 打字机效果 ──────────────────────────────────────
+    async function typeMessage(role, html) {
+      const container = document.getElementById('messages');
+      const div = document.createElement('div');
+      div.className = 'message ' + role;
+
+      const avatar = document.createElement('div');
+      avatar.className = 'msg-avatar';
+      avatar.textContent = role === 'user' ? '👤' : '🧬';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble';
+      bubble.id = 'typingBubble';
+
+      div.appendChild(avatar);
+      div.appendChild(bubble);
+      container.appendChild(div);
+
+      // 先创建一个纯文本版用于逐字显示
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      const plainText = tempDiv.textContent || tempDiv.innerText || '';
+
+      // 分批显示
+      const charsPerTick = 3;
+      let pos = 0;
+      const totalLen = plainText.length;
+
+      return new Promise((resolve) => {
+        function tick() {
+          const nextPos = Math.min(pos + charsPerTick, totalLen);
+          const shownText = plainText.slice(0, nextPos);
+          // 简单渲染：只显示纯文本+光标，完整html等打完再渲染
+          bubble.textContent = shownText;
+          if (nextPos < totalLen) {
+            bubble.textContent += '▌';
+          }
+          container.scrollTop = container.scrollHeight;
+          pos = nextPos;
+          if (pos >= totalLen) {
+            // 打完，渲染完整 html
+            bubble.innerHTML = html;
+            container.scrollTop = container.scrollHeight;
+            resolve();
+          } else {
+            setTimeout(tick, 20);
+          }
+        }
+        tick();
+      });
+    }
+
+    // ─── 工具函数 ────────────────────────────────────────
+    function addMessage(role, html) {
+      const container = document.getElementById('messages');
+      const div = document.createElement('div');
+      div.className = 'message ' + role;
+
+      const avatar = document.createElement('div');
+      avatar.className = 'msg-avatar';
+      avatar.textContent = role === 'user' ? '👤' : '🧬';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble';
+      bubble.innerHTML = html;
+
+      div.appendChild(avatar);
+      div.appendChild(bubble);
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function showLoading() {
+      const container = document.getElementById('messages');
+      const div = document.createElement('div');
+      div.className = 'message assistant';
+      div.id = 'loading-' + Date.now();
+      div.innerHTML = '<div class="msg-avatar">🧬</div><div class="msg-bubble"><div class="loading-dots"><span></span><span></span><span></span></div></div>';
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+      return div.id;
+    }
+
+    function removeLoading(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    function setLoading(loading) {
+      isLoading = loading;
+      sendBtn.disabled = loading;
+      sendBtn.textContent = loading ? '分析中...' : '发送';
+      userInput.disabled = loading;
+    }
+
+    // ─── 格式化消息（markdown 简化版）────────────────────
+    function formatContent(text) {
+      if (!text) return '';
+      let html = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        // 代码块
+        .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+        // 行内代码
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        // 加粗
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        // 图片: [图片](url)
+        .replace(/\[图片\]\((https?:\/\/[^\s)]+)\)/g, '<br><img src="$1" loading="lazy"><br>')
+        // 图片: ![](url)
+        .replace(/!\[(.*?)\]\((https?:\/\/[^\s)]+)\)/g, '<br><img src="$2" alt="$1" loading="lazy"><br>')
+        // 链接
+        .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank">$1</a>')
+        // 表格: | a | b |\n|---|---|\n| 1 | 2 |
+        .replace(/\n\|(.+)\|\n\|[-\s|]+\|\n((?:\|.+\|\n?)*)/g, (_, header, rows) => {
+          const hCells = header.split('|').filter(c => c.trim()).map(c => `<th>${c.trim()}</th>`).join('');
+          const rRows = rows.trim().split('\n').filter(r => r.trim()).map(r => {
+            const cells = r.split('|').filter(c => c.trim()).map(c => `<td>${c.trim()}</td>`).join('');
+            return `<tr>${cells}</tr>`;
+          }).join('');
+          return `\n<table><thead><tr>${hCells}</tr></thead><tbody>${rRows}</tbody></table>\n`;
+        })
+        // 换行
+        .replace(/\n/g, '<br>');
+
+      return html;
+    }
+
+    // ─── 服务状态检查 ────────────────────────────────────
+    async function checkHealth() {
+      const dot = document.getElementById('statusDot');
+      const text = document.getElementById('statusText');
+      try {
+        const resp = await fetch(`${AGENT_API}/api/health`);
+        const data = await resp.json();
+        if (data.status === 'healthy') {
+          dot.style.background = '#48bb78';
+          text.textContent = '服务正常';
+        } else {
+          dot.style.background = '#ecc94b';
+          text.textContent = '部分异常';
+        }
+      } catch {
+        dot.style.background = '#f56565';
+        text.textContent = 'Agent 未连接';
+      }
+    }
+
+    checkHealth();
+    setInterval(checkHealth, 30000);
+  </script>
+</body>
+</html>
