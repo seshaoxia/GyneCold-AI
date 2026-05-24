@@ -114,19 +114,19 @@
           <input type="password" id="password" placeholder="输入密码" required>
         </div>
         <div class="form-group" id="apiKeyGroup" style="display:none;">
-          <label>API Key
+          <label>API Key <span style="color:#ff6b6b;">*</span>
             <span style="font-weight:normal;color:#555;font-size:12px;">
               （<a href="https://platform.deepseek.com/api_keys" target="_blank" style="color:#888;">DeepSeek</a> / <a href="https://openrouter.ai/keys" target="_blank" style="color:#888;">OpenRouter</a>）
             </span>
           </label>
-          <input type="password" id="apiKey" placeholder="sk-... 不填则使用平台的默认 Key">
-          <div style="font-size:11px;color:#444;margin-top:4px;">留空则使用平台提供的默认 API Key</div>
+          <input type="password" id="apiKey" placeholder="sk-... 必须填写自己的 API Key" required>
+          <div style="font-size:11px;color:#444;margin-top:4px;">注册后不可修改，请妥善保管</div>
         </div>
         <button type="submit" class="auth-btn" id="authBtn">登录</button>
       </form>
 
       <div class="auth-toggle">
-        <a href="chat.html" id="skipLink" style="color:#555;">跳过登录，直接使用 →</a>
+        <a href="https://platform.deepseek.com/api_keys" target="_blank" style="color:#555;font-size:13px;">还没有 API Key？去 DeepSeek 申请 →</a>
       </div>
     </div>
     <div class="back-link"><a href="index.html">← 返回首页</a></div>
@@ -166,6 +166,12 @@
 
       if (!username || !password) {
         showError('请填写用户名和密码');
+        return false;
+      }
+
+      // 注册时必须填写 API Key
+      if (!isLogin && !apiKey) {
+        showError('请填写你的 API Key（DeepSeek / OpenRouter）');
         return false;
       }
 
