@@ -321,15 +321,18 @@
     // ─── 用户信息 ────────────────────────────────────────
     const userData = JSON.parse(localStorage.getItem('gynecold_user') || 'null');
     const isLoggedIn = !!userData;
-    const USERNAME = userData ? (userData.name || userData.username) : '访客';
-    const USER_ID = 'gynecold-' + (userData ? userData.username : Math.random().toString(36).slice(2, 8));
+    if (!isLoggedIn) {
+      window.location.href = 'login.html?redirect=chat.html';
+    }
+    const USERNAME = userData.name || userData.username;
+    const USER_ID = 'gynecold-' + userData.username;
 
     document.getElementById('userName').textContent = USERNAME;
     document.getElementById('userAvatar').textContent = USERNAME.charAt(0).toUpperCase();
 
     function logout() {
       localStorage.removeItem('gynecold_user');
-      window.location.href = 'index.html';
+      window.location.href = 'login.html';
     }
 
     // ─── Agent API ───────────────────────────────────────
