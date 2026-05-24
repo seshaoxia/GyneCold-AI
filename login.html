@@ -113,6 +113,10 @@
           <label>密码</label>
           <input type="password" id="password" placeholder="输入密码" required>
         </div>
+        <div class="form-group" id="password2Group" style="display:none;">
+          <label>确认密码</label>
+          <input type="password" id="password2" placeholder="再次输入密码" required>
+        </div>
         <div class="form-group" id="apiKeyGroup" style="display:none;">
           <label>API Key <span style="color:#ff6b6b;">*</span>
             <span style="font-weight:normal;color:#555;font-size:12px;">
@@ -144,6 +148,7 @@
         ? '还没有账号？<a href="#" id="toggleAuth">立即注册</a>'
         : '已有账号？<a href="#" id="toggleAuth">立即登录</a>';
       document.getElementById('nameGroup').style.display = isLogin ? 'none' : 'block';
+      document.getElementById('password2Group').style.display = isLogin ? 'none' : 'block';
       document.getElementById('apiKeyGroup').style.display = isLogin ? 'none' : 'block';
       document.getElementById('authBtn').textContent = isLogin ? '登录' : '注册';
       document.getElementById('authError').style.display = 'none';
@@ -161,6 +166,7 @@
       e.preventDefault();
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value.trim();
+      const password2 = document.getElementById('password2').value.trim();
       const name = document.getElementById('regName').value.trim() || username;
       const apiKey = document.getElementById('apiKey').value.trim();
 
@@ -172,6 +178,12 @@
       // 注册时必须填写 API Key
       if (!isLogin && !apiKey) {
         showError('请填写你的 API Key（DeepSeek / OpenRouter）');
+        return false;
+      }
+
+      // 注册时密码需两次一致
+      if (!isLogin && password !== password2) {
+        showError('两次输入的密码不一致');
         return false;
       }
 
