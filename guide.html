@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>使用教程 · GyneCold AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', 'Noto Sans SC', sans-serif;
+      background: #000; color: #a0a0a0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---- Navbar ---- */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      padding: 16px 24px;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .navbar-inner {
+      width: 100%; max-width: 900px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .navbar-brand {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 600; font-size: 16px; color: #fff; text-decoration: none;
+    }
+    .navbar-brand span { color: #888; }
+    .navbar-links { display: flex; gap: 16px; }
+    .navbar-links a { color: #666; text-decoration: none; font-size: 13px; }
+    .navbar-links a:hover { color: #fff; }
+    .btn-sm {
+      padding: 8px 18px; border-radius: 999px; background: #fff; color: #000;
+      font-size: 13px; font-weight: 500; text-decoration: none;
+    }
+
+    /* ---- Content ---- */
+    .container {
+      max-width: 800px; margin: 0 auto; padding: 0 24px;
+    }
+    .hero {
+      padding: 100px 24px 60px; text-align: center;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 6vw, 48px); font-weight: 700;
+      color: #fff; margin-bottom: 16px;
+    }
+    .hero p {
+      font-size: 16px; color: #666; max-width: 560px; margin: 0 auto;
+    }
+
+    /* ---- TOC ---- */
+    .toc {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px; padding: 32px; margin-bottom: 60px;
+    }
+    .toc h2 { font-size: 14px; color: #fff; margin-bottom: 16px; }
+    .toc ol { list-style: none; counter-reset: toc; }
+    .toc ol li { counter-increment: toc; margin-bottom: 8px; }
+    .toc ol li::before {
+      content: counter(toc) ".";
+      color: #555; font-family: 'JetBrains Mono', monospace;
+      margin-right: 8px; font-size: 13px;
+    }
+    .toc a { color: #888; text-decoration: none; font-size: 14px; }
+    .toc a:hover { color: #fff; }
+
+    /* ---- Section ---- */
+    .section {
+      margin-bottom: 60px; scroll-margin-top: 80px;
+    }
+    .section h2 {
+      font-size: 22px; font-weight: 700; color: #fff;
+      margin-bottom: 20px; padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .section h3 {
+      font-size: 17px; font-weight: 600; color: #ddd;
+      margin: 28px 0 12px;
+    }
+    .section h4 {
+      font-size: 15px; font-weight: 500; color: #bbb;
+      margin: 20px 0 8px;
+    }
+    .section p {
+      font-size: 15px; line-height: 1.8; color: #999;
+      margin-bottom: 12px;
+    }
+    .section ul, .section ol {
+      margin: 8px 0 16px 20px; line-height: 1.8;
+    }
+    .section li { margin-bottom: 6px; font-size: 14px; color: #999; }
+    .section strong { color: #ccc; }
+
+    /* ---- Code blocks ---- */
+    .section code {
+      background: rgba(255,255,255,0.06);
+      padding: 2px 8px; border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; color: #ddd;
+    }
+    .section pre {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px; padding: 16px 20px;
+      overflow-x: auto; margin: 12px 0 20px;
+    }
+    .section pre code {
+      background: none; padding: 0;
+      font-size: 13px; line-height: 1.7;
+    }
+
+    /* ---- Steps ---- */
+    .step {
+      display: flex; gap: 16px; margin: 20px 0;
+      padding: 20px; border-radius: 12px;
+      background: rgba(255,255,255,0.015);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .step-num {
+      flex-shrink: 0; width: 32px; height: 32px;
+      border-radius: 50%; background: #fff; color: #000;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .step-content { flex: 1; }
+    .step-content h4 { margin: 0 0 8px !important; }
+    .step-content p { margin-bottom: 4px !important; }
+
+    /* ---- Tip boxes ---- */
+    .tip {
+      padding: 16px 20px; border-radius: 10px;
+      border-left: 3px solid #555;
+      background: rgba(255,255,255,0.02); margin: 16px 0;
+    }
+    .tip strong { color: #fff; }
+    .tip.warning {
+      border-left-color: #ecc94b; background: rgba(236,201,75,0.04);
+    }
+    .tip.info {
+      border-left-color: #8af; background: rgba(136,170,255,0.04);
+    }
+
+    /* ---- Image placeholders ---- */
+    .screenshot {
+      margin: 20px 0; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+      overflow: hidden; text-align: center;
+    }
+    .screenshot img { max-width: 100%; display: block; }
+    .screenshot .caption {
+      padding: 8px 16px; font-size: 12px; color: #555;
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* ---- Footer ---- */
+    .footer {
+      text-align: center; padding: 40px 24px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      font-size: 13px; color: #444;
+    }
+    .footer a { color: #666; text-decoration: none; }
+    .footer a:hover { color: #fff; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #000; }
+    ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .step { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="navbar-brand">GyneCold<span> AI</span></a>
+      <div class="navbar-links">
+        <a href="index.html">首页</a>
+        <a href="chat.html" class="btn-sm">开始分析</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>使用教程</h1>
+    <p>从入门到精通，快速上手 GyneCold AI 平台完成转录组差异表达分析</p>
+  </div>
+
+  <div class="container">
+    <!-- TOC -->
+    <div class="toc">
+      <h2>📑 目录</h2>
+      <ol>
+        <li><a href="#intro">平台简介</a></li>
+        <li><a href="#register">注册与登录</a></li>
+        <li><a href="#chat">使用 AI 分析助手</a></li>
+        <li><a href="#upload">上传文件</a></li>
+        <li><a href="#params">配置分析参数</a></li>
+        <li><a href="#results">查看与解读结果</a></li>
+        <li><a href="#examples">常用对话示例</a></li>
+        <li><a href="#troubleshoot">常见问题</a></li>
+      </ol>
+    </div>
+
+    <!-- 1. 平台简介 -->
+    <section class="section" id="intro">
+      <h2>1. 平台简介</h2>
+      <p>GyneCold AI 是一个面向转录组差异表达分析的智能研究平台。平台由三部分组成：</p>
+      <ul>
+        <li><strong>GyneCold AI 前端网站</strong> — 你当前看到的界面，部署在 GitHub Pages 上，提供注册登录和对话入口</li>
+        <li><strong>AI Agent 后端</strong> — 大语言模型（DeepSeek Chat）驱动的分析助手，理解自然语言并自动调用分析工具</li>
+        <li><strong>autoSX 分析引擎</strong> — 后端的生物信息学分析管线，实现 limma 差异表达检验、火山图/热图/PCA 可视化</li>
+      </ul>
+      <p>你只需要用中文告诉 AI 你想做什么，Agent 会自动完成文件上传、参数配置、任务提交、结果获取等全部流程。</p>
+    </section>
+
+    <!-- 2. 注册与登录 -->
+    <section class="section" id="register">
+      <h2>2. 注册与登录</h2>
+      <p>所有分析功能需要登录后才能使用。</p>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>访问首页</h4>
+          <p>打开 GyneCold AI 首页，点击右上角的 <strong>"登录"</strong> 按钮，或中间的 <strong>"开始研究"</strong> 按钮。</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>注册账号</h4>
+          <p>如果是第一次使用，点击 <strong>"立即注册"</strong>。填写姓名（可选）、用户名和密码即可完成注册。所有数据仅保存在你当前浏览器的本地存储中，不会上传到任何服务器。</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>登录</h4>
+          <p>已有账号则直接输入用户名和密码登录。登录后自动跳转到分析聊天页面。</p>
+        </div>
+      </div>
+
+      <div class="tip info">
+        <strong>💡 提示：</strong>注册信息保存在浏览器 <code>localStorage</code> 中。如果更换设备或清除浏览器数据，需要重新注册。建议使用固定的用户名和密码。你也可以点击 <strong>"跳过登录，直接使用"</strong> 以访客身份体验。
+      </div>
+    </section>
+
+    <!-- 3. 使用 AI 分析助手 -->
+    <section class="section" id="chat">
+      <h2>3. 使用 AI 分析助手</h2>
+      <p>登录后进入全屏聊天界面。这是你和 AI 分析助手的主要交互页面。</p>
+
+      <h3>3.1 界面布局</h3>
+      <ul>
+        <li><strong>左侧边栏</strong>：显示当前用户名、新建对话按钮、快捷问题</li>
+        <li><strong>中央聊天区</strong>：显示对话历史，AI 回复以打字机效果逐字输出</li>
+        <li><strong>底部输入区</strong>：文本输入框、文件上传按钮、发送按钮</li>
+      </ul>
+
+      <h3>3.2 发送消息</h3>
+      <p>在底部输入框中输入你的分析需求，按 <code>Enter</code> 发送（<code>Shift+Enter</code> 换行）。AI 会理解你的意图并自动执行相应操作。</p>
+
+      <h3>3.3 快捷问题</h3>
+      <p>侧边栏提供了 4 个快捷问题按钮，点击即可快速发起常见分析任务：</p>
+      <ul>
+        <li><strong>📊 差异表达分析</strong> — 开始一个标准的差异表达分析流程</li>
+        <li><strong>🔍 查看分析模块</strong> — 查询当前平台上有哪些可用的分析模块</li>
+        <li><strong>📤 上传文件分析</strong> — 上传文件并开始分析</li>
+        <li><strong>⚙️ 参数配置</strong> — 设置 P 值、log2FC 等参数</li>
+      </ul>
+
+      <h3>3.4 打字机效果</h3>
+      <p>AI 的回复会以打字机效果逐字显示，让你看到思考过程。对于较长的分析报告，可以耐心等待完整输出。</p>
+
+      <h3>3.5 新建对话</h3>
+      <p>点击侧边栏的 <strong>"+ 新建对话"</strong> 按钮可以清空当前对话历史，开始一个新的分析会话。</p>
+    </section>
+
+    <!-- 4. 上传文件 -->
+    <section class="section" id="upload">
+      <h2>4. 上传文件</h2>
+      <p>进行差异表达分析需要提供两个关键文件：</p>
+      <ul>
+        <li><strong>表达矩阵 CSV</strong> — 行为基因（需包含 gene_id 列），列为样本，值为表达量</li>
+        <li><strong>样本分组 CSV</strong> — 包含 sample_id 和 group 两列，仅允许两组比较</li>
+      </ul>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>点击上传按钮</h4>
+          <p>在聊天输入框左侧，点击 <strong>📎 上传文件</strong> 按钮，选择你要上传的 CSV 文件。</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>预览文件</h4>
+          <p>上传后会在输入框上方显示文件缩略图或文件名。点击 ✕ 可以移除不需要的文件。</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>告诉 AI 文件位置</h4>
+          <p>在输入框中描述你的文件路径，例如：</p>
+          <pre><code>表达矩阵在 D:\data\expression.csv，分组文件在 D:\data\groups.csv，帮我做差异表达分析</code></pre>
+          <p>AI 会自动读取并上传文件到分析引擎。</p>
+        </div>
+      </div>
+
+      <div class="tip warning">
+        <strong>⚠️ 注意：</strong>文件需要存放在 AI Agent 服务器可以访问的路径下。如果你使用的是本地部署的 Agent，文件路径需要是服务器上的绝对路径。当前演示环境下，文件路径以 Docker 容器内的路径为准。
+      </div>
+    </section>
+
+    <!-- 5. 配置分析参数 -->
+    <section class="section" id="params">
+      <h2>5. 配置分析参数</h2>
+      <p>RNA-seq 差异表达分析支持以下可调参数，你可以通过自然语言告诉 AI 来设置：</p>
+
+      <h3>5.1 参数一览</h3>
+      <table style="width:100%;border-collapse:collapse;margin:12px 0 20px;font-size:14px;">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+            <th style="padding:8px 12px;text-align:left;color:#fff;font-weight:500;">参数</th>
+            <th style="padding:8px 12px;text-align:left;color:#fff;font-weight:500;">默认值</th>
+            <th style="padding:8px 12px;text-align:left;color:#fff;font-weight:500;">说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+            <td style="padding:8px 12px;color:#ddd;"><code>p_value_threshold</code></td>
+            <td style="padding:8px 12px;">0.05</td>
+            <td style="padding:8px 12px;color:#999;">显著性水平阈值，越小越严格</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+            <td style="padding:8px 12px;color:#ddd;"><code>log2fc_threshold</code></td>
+            <td style="padding:8px 12px;">1.0</td>
+            <td style="padding:8px 12px;color:#999;">差异倍数（log2）阈值，绝对值需大于此值</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+            <td style="padding:8px 12px;color:#ddd;"><code>test_method</code></td>
+            <td style="padding:8px 12px;">limma</td>
+            <td style="padding:8px 12px;color:#999;">统计方法：limma / ttest / mannwhitney</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+            <td style="padding:8px 12px;color:#ddd;"><code>normalization</code></td>
+            <td style="padding:8px 12px;">cpm</td>
+            <td style="padding:8px 12px;color:#999;">标准化：none / cpm / tpm / quantile</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+            <td style="padding:8px 12px;color:#ddd;"><code>log_transform</code></td>
+            <td style="padding:8px 12px;">auto</td>
+            <td style="padding:8px 12px;color:#999;">是否 log2 转换：auto / yes / no</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;color:#ddd;"><code>min_samples_expr</code></td>
+            <td style="padding:8px 12px;">0</td>
+            <td style="padding:8px 12px;color:#999;">低表达基因过滤（N 个样本中表达量>0）</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>5.2 通过对话设置参数示例</h3>
+      <pre><code>👤 "用 limma 方法跑差异分析，p 值设为 0.01，log2FC 设为 1.5"
+🤖 好的，已配置参数：limma 方法，p<0.01，|log2FC|>1.5。分析进行中...
+
+👤 "标准化用 quantile，不过滤低表达基因"
+🤖 已更新参数：标准化方法改为 quantile，min_samples_expr=0（不过滤）。</code></pre>
+    </section>
+
+    <!-- 6. 查看结果 -->
+    <section class="section" id="results">
+      <h2>6. 查看与解读结果</h2>
+      <p>分析完成后，AI 会以自然语言总结分析结果，并提供可视化图表和数据的访问链接。</p>
+
+      <h3>6.1 AI 总结报告</h3>
+      <p>分析完成后，AI 会给出类似这样的总结：</p>
+      <pre><code>✅ 差异表达分析完成！
+📊 结果概览：
+   • 检测基因总数：21,555
+   • 显著差异基因：127 个（padj<0.05, |log2FC|>1）
+   • 上调基因：82 个 | 下调基因：45 个
+   • 统计方法：limma | 标准化：CPM
+
+📈 可视化图表：
+   • 火山图 → 访问链接
+   • 热图   → 访问链接
+   • PCA 图 → 访问链接
+
+📋 数据表格：
+   • 差异基因列表 → 访问链接
+   • 统计摘要     → 访问链接</code></pre>
+
+      <h3>6.2 查看图表</h3>
+      <p><strong>火山图</strong>：展示基因的差异表达分布。横轴为 log2FC（差异倍数），纵轴为 -log10(padj)（显著性）。左上和右上区域为显著差异基因。</p>
+      <ul>
+        <li>红色/绿色点 = 显著上调/下调的基因（padj < 阈值）</li>
+        <li>灰色点 = 不显著基因</li>
+        <li>被标注的基因是变化最显著的候选基因</li>
+      </ul>
+
+      <p><strong>热图</strong>：展示显著差异基因在样本间的表达模式。行 = 基因，列 = 样本，颜色表示 Z-score 标准化后的相对表达水平。</p>
+      <ul>
+        <li>红色 = 高表达，蓝色 = 低表达</li>
+        <li>顶部样本标签颜色区分不同实验组</li>
+        <li>横向聚类反映基因表达模式的相似性</li>
+      </ul>
+
+      <p><strong>PCA 图</strong>：主成分分析降维可视化，展示样本间的全局相似性。</p>
+      <ul>
+        <li>每个点代表一个样本，颜色代表分组</li>
+        <li>椭圆表示 95% 置信区间</li>
+        <li>横纵轴标注方差解释率（PC1/PC2）</li>
+        <li>两组样本在 PCA 空间分离越好，表示差异越明显</li>
+      </ul>
+
+      <h3>6.3 下载数据</h3>
+      <p>点击 AI 提供的链接可以查看完整图表或下载差异基因表格。</p>
+      <ul>
+        <li><strong>差异基因表格</strong>：包含 gene_id、gene_symbol、log2FC、p_value、padj、significant 等列</li>
+        <li><strong>统计摘要</strong>：total_genes / up_regulated / down_regulated / significant 计数</li>
+      </ul>
+
+      <div class="tip info">
+        <strong>💡 解读要点：</strong>关注 log2FC 的绝对值大小（效应量）和 padj 值（统计显著性）。结合火山图的可视化分布和热图的表达模式，综合判断最值得深入研究的候选基因。
+      </div>
+    </section>
+
+    <!-- 7. 对话示例 -->
+    <section class="section" id="examples">
+      <h2>7. 常用对话示例</h2>
+      <p>以下是一些你可以直接复制使用的对话示例：</p>
+
+      <h3>7.1 完整分析流程</h3>
+      <pre><code>👤 "帮我做差异表达分析，表达矩阵文件在 D:\data\expression.csv，
+     分组文件在 D:\data\groups.csv"
+🤖 好的，我来处理。先上传文件...
+   ✓ 已上传 expression.csv → file_id: abc123
+   ✓ 已上传 groups.csv → file_id: def456
+   请确认分析参数：默认使用 limma 方法，p<0.05，|log2FC|>1.0？
+👤 "可以"
+🤖 分析已提交！任务 ID: task_abc，正在运行...
+   [20%] 加载数据...
+   [40%] 标准化 + 差异检验...
+   [80%] 生成图表...
+   [100%] ✅ 完成！</code></pre>
+
+      <h3>7.2 仅调整参数</h3>
+      <pre><code>👤 "p 值改为 0.01，log2FC 改为 1.5，用 ttest 方法"
+🤖 已更新参数：p_value_threshold=0.01, log2fc_threshold=1.5, test_method=ttest</code></pre>
+
+      <h3>7.3 查询模块</h3>
+      <pre><code>👤 "看看有哪些分析模块"
+🤖 目前可用的模块：
+   • rnaseq — RNA-seq 差异表达分析（版本 1.0.0）
+     支持：limma/ttest/mannwhitney 方法，火山图/热图/PCA</code></pre>
+
+      <h3>7.4 查看结果</h3>
+      <pre><code>👤 "查看上次分析的结果"
+🤖 上次分析结果（task_abc）：
+   • 差异基因：127 个（82 上调，45 下调）
+   • 火山图：http://...
+   • 热图：http://...
+   • 差异基因表格：http://...</code></pre>
+    </section>
+
+    <!-- 8. 常见问题 -->
+    <section class="section" id="troubleshoot">
+      <h2>8. 常见问题</h2>
+
+      <h3>Q: 为什么 AI 回复 "无法连接到服务"？</h3>
+      <p>AI Agent 后端需要独立启动。如果你看到这个错误，说明后端服务未运行或网络不通。请确认 Agent 服务器已启动并可访问。</p>
+
+      <h3>Q: 注册后换浏览器数据还在吗？</h3>
+      <p>不在了。注册信息保存在当前浏览器的 <code>localStorage</code> 中。换设备或清除浏览器缓存后需要重新注册。建议使用固定用户名。</p>
+
+      <h3>Q: 分析任务能跑多久？</h3>
+      <p>取决于数据量大小。对于 2 万个基因、十几个样本的典型 RNA-seq 数据，通常在 1-3 分钟内完成。Agent 会自动轮询进度。</p>
+
+      <h3>Q: 支持哪些输入文件格式？</h3>
+      <p>目前支持 CSV 格式的表达矩阵和分组文件。表达矩阵要求行=基因、列=样本，需要包含 <code>gene_id</code> 列。分组文件需要包含 <code>sample_id</code> 和 <code>group</code> 两列。</p>
+
+      <h3>Q: 能分析几组比较？</h3>
+      <p>目前仅支持两组比较（如实验组 vs 对照组）。样本分组文件中的 group 列只能有两个不同的分组值。</p>
+
+      <h3>Q: 首页的 DNA 双螺旋动画很吃性能吗？</h3>
+      <p>不会。Three.js 动画使用 WebGL 硬件加速，对现代浏览器和设备的性能影响极小。如果感觉卡顿，滚动页面后动画会自动暂停渲染循环。</p>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <a href="index.html">GyneCold AI</a> · 使用教程 · 开源项目 ·
+    <a href="https://github.com/seshaoxia/GyneCold-AI" target="_blank">GitHub</a>
+  </div>
+
+</body>
+</html>
