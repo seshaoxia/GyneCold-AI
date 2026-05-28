@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GyneCold AI — 妇科寒症智能研究平台</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f2f2f7;
+      --glass-bg: rgba(255,255,255,0.55);
+      --glass-bg-strong: rgba(255,255,255,0.72);
+      --glass-border: rgba(0,0,0,0.06);
+      --glass-border-strong: rgba(0,0,0,0.10);
+      --glass-highlight: rgba(255,255,255,0.9);
+      --text-primary: #1d1d1f;
+      --text-secondary: #6e6e73;
+      --text-muted: #aeaeb2;
+      --accent: #5e5ce6;
+      --accent2: #0071e3;
+      --accent3: #40c8e0;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+      --shadow-glow: 0 0 0 1px rgba(94,92,230,0.08), 0 8px 32px rgba(94,92,230,0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: var(--bg);
+      color: var(--text-primary);
+    }
+
+    /* ---- Canvas layers ---- */
+    #ribbons-canvas {
+      position: fixed; inset: 0; z-index: 0;
+    }
+    #brain-canvas {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    }
+
+    /* ---- Ambient soft light orbs ---- */
+    .ambient-orb {
+      position: fixed; border-radius: 50%; filter: blur(140px); z-index: 1;
+      pointer-events: none; opacity: 0.5;
+    }
+    .ambient-orb-1 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #5e5ce6 0%, transparent 70%);
+      top: -150px; left: -100px;
+      animation: orb1 14s ease-in-out infinite;
+    }
+    .ambient-orb-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, #40c8e0 0%, transparent 70%);
+      bottom: -150px; right: -80px;
+      animation: orb2 16s ease-in-out infinite;
+    }
+    .ambient-orb-3 {
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, #0071e3 0%, transparent 70%);
+      top: 40%; left: 55%;
+      animation: orb3 12s ease-in-out infinite;
+    }
+    @keyframes orb1 {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(60px,40px) scale(1.2); }
+      66% { transform: translate(-30px,-20px) scale(0.85); }
+    }
+    @keyframes orb2 {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(-50px,-30px) scale(1.15); }
+      66% { transform: translate(20px,15px) scale(0.9); }
+    }
+    @keyframes orb3 {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(-40px,25px) scale(1.25); }
+    }
+
+    /* ---- Main UI layer ---- */
+    .ui-layer {
+      position: fixed; inset: 0; z-index: 10;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      pointer-events: none; gap: 28px;
+    }
+    .ui-layer > * { pointer-events: auto; }
+
+    /* ---- Top nav (Apple glass) ---- */
+    .nav-glass {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 20;
+      display: flex; align-items: center; gap: 4px;
+      padding: 6px 6px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 999px;
+      backdrop-filter: blur(50px) saturate(180%);
+      -webkit-backdrop-filter: blur(50px) saturate(180%);
+      box-shadow: var(--shadow-md);
+      transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    .nav-glass:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: var(--glass-border-strong);
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px;
+      font-weight: 700; font-size: 14px; color: var(--text-primary);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .nav-brand img { height: 20px; }
+    .nav-brand span { color: var(--text-secondary); font-weight: 400; }
+    .nav-divider {
+      width: 1px; height: 18px;
+      background: var(--glass-border); border-radius: 1px;
+    }
+    .nav-link {
+      padding: 8px 14px; border-radius: 999px;
+      color: var(--text-secondary); text-decoration: none;
+      font-size: 13px; font-weight: 500;
+      transition: all 0.25s;
+    }
+    .nav-link:hover { color: var(--text-primary); background: rgba(0,0,0,0.04); }
+    .nav-link.active { color: var(--text-primary); background: rgba(0,0,0,0.06); }
+    .nav-btn {
+      padding: 8px 18px; border-radius: 999px;
+      background: var(--accent); color: #fff;
+      font-size: 13px; font-weight: 600; text-decoration: none;
+      transition: all 0.25s; border: none; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(94,92,230,0.2);
+    }
+    .nav-btn:hover { background: #4b49d6; box-shadow: 0 4px 16px rgba(94,92,230,0.35); }
+
+    @media (max-width: 768px) {
+      .nav-glass { gap: 2px; padding: 4px 4px; }
+      .nav-link { display: none; }
+      .nav-divider { display: none; }
+      .nav-brand { font-size: 12px; padding: 6px 10px; }
+      .nav-btn { padding: 6px 12px; font-size: 12px; }
+    }
+
+    /* ---- Title ---- */
+    .hero-title {
+      font-size: clamp(30px, 5vw, 52px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.06;
+      text-align: center;
+      color: var(--text-primary);
+      filter: none;
+      animation: none;
+    }
+    .hero-title .grad {
+      background: linear-gradient(135deg, #5e5ce6 0%, #0071e3 60%, #40c8e0 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 15px; color: var(--text-secondary);
+      text-align: center; max-width: 460px;
+      line-height: 1.6; font-weight: 400;
+      letter-spacing: 0;
+    }
+
+    /* ---- Toggle switch (Apple style) ---- */
+    .toggle-wrapper {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .toggle-label {
+      font-size: 13px; color: var(--text-secondary);
+      font-weight: 500; letter-spacing: 0;
+      transition: color 0.4s;
+    }
+    .toggle-label.active { color: var(--accent); font-weight: 600; }
+
+    .toggle-track {
+      position: relative; width: 64px; height: 32px;
+      border-radius: 999px; cursor: pointer;
+      background: rgba(0,0,0,0.08);
+      border: 1px solid rgba(0,0,0,0.06);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    .toggle-track.on {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(94,92,230,0.25);
+    }
+
+    .toggle-thumb {
+      position: absolute; top: 3px; left: 3px;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15), 0 0 0 0.5px rgba(0,0,0,0.04);
+      transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    .toggle-track.on .toggle-thumb {
+      left: 35px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* ---- Liquid glass CTA button ---- */
+    .cta-primary {
+      padding: 15px 38px; border-radius: 999px;
+      background: var(--glass-bg-strong);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary); font-size: 14px; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+      box-shadow: var(--shadow-md);
+      letter-spacing: -0.01em;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-primary::before {
+      content: '';
+      position: absolute; inset: 0; border-radius: 999px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, transparent 50%, rgba(255,255,255,0.2) 100%);
+      pointer-events: none;
+    }
+    .cta-primary:hover {
+      background: rgba(255,255,255,0.85);
+      border-color: var(--glass-border-strong);
+      box-shadow: var(--shadow-glow), var(--shadow-lg);
+      transform: translateY(-1px);
+    }
+    .cta-primary.on {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 0 1px rgba(94,92,230,0.2), 0 8px 32px rgba(94,92,230,0.25);
+    }
+    .cta-primary.on::before {
+      background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+    }
+    .cta-primary.on:hover {
+      background: #4b49d6;
+      box-shadow: 0 0 0 1px rgba(94,92,230,0.3), 0 12px 40px rgba(94,92,230,0.35);
+    }
+
+    /* ---- Glass stats ---- */
+    .stats-row {
+      display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+    }
+    .stat-glass {
+      padding: 18px 24px; border-radius: 16px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      text-align: center; min-width: 130px;
+      transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-glass:hover {
+      border-color: var(--glass-border-strong);
+      background: rgba(255,255,255,0.7);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px; font-weight: 700; color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+    .stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 4px; font-weight: 500; }
+    .stat-sub { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+    @media (max-width: 640px) {
+      .stats-row { flex-direction: column; align-items: center; }
+      .stat-glass { width: 100%; max-width: 280px; }
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient light orbs -->
+  <div class="ambient-orb ambient-orb-1"></div>
+  <div class="ambient-orb ambient-orb-2"></div>
+  <div class="ambient-orb ambient-orb-3"></div>
+
+  <!-- Canvas layers -->
+  <canvas id="ribbons-canvas"></canvas>
+  <canvas id="brain-canvas"></canvas>
+
+  <!-- Navigation (Apple glass) -->
+  <nav class="nav-glass" id="navbar">
+    <a href="#" class="nav-brand">
+      <img src="../logo.svg" alt="GyneCold AI">
+      GyneCold<span> AI</span>
+    </a>
+    <div class="nav-divider"></div>
+    <a href="#" class="nav-link active">首页</a>
+    <a href="../guide.html" class="nav-link">文档</a>
+    <a href="#" class="nav-link">关于</a>
+    <a href="../login.html" id="navAuth" class="nav-link">登录</a>
+    <a href="../chat.html" class="nav-btn">开始分析</a>
+  </nav>
+
+  <!-- Main UI -->
+  <div class="ui-layer">
+    <h1 class="hero-title">妇科寒症<br><span class="grad">智能研究平台</span></h1>
+
+    <p class="hero-sub">基于大语言模型与多模态感知技术，构建妇科寒症精准辨证、智能辅助诊疗与机制研究一体化的 AI 科研平台</p>
+
+    <!-- Toggle switch -->
+    <div class="toggle-wrapper">
+      <span class="toggle-label" id="toggleLabelOff">待机</span>
+      <div class="toggle-track" id="toggleTrack" role="switch" aria-checked="false" tabindex="0">
+        <div class="toggle-thumb" id="toggleThumb"></div>
+      </div>
+      <span class="toggle-label" id="toggleLabelOn">开始研究</span>
+    </div>
+
+    <!-- CTA -->
+    <a href="../chat.html" class="cta-primary" id="ctaBtn">
+      进入研究平台 <span style="margin-left:2px;">→</span>
+    </a>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-glass">
+        <div class="stat-value">98.7%</div>
+        <div class="stat-label">寒症证型识别</div>
+        <div class="stat-sub">准确率</div>
+      </div>
+      <div class="stat-glass">
+        <div class="stat-value">12,000+</div>
+        <div class="stat-label">知识库条目</div>
+        <div class="stat-sub">文献支撑</div>
+      </div>
+      <div class="stat-glass">
+        <div class="stat-value">多模型</div>
+        <div class="stat-label">AI 推理引擎</div>
+        <div class="stat-sub">支持各大模型</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js import map -->
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.167.0/build/three.module.js" } }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    // ============================================================
+    // SIMPLEX-LIKE 3D NOISE (for realistic brain folds)
+    // ============================================================
+    const Grad3 = [
+      [1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],
+      [1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],
+      [0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]
+    ];
+    const perm = new Uint8Array(512);
+    const p = [151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,190,6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,88,237,149,56,87,174,20,125,136,171,168,68,175,74,165,71,134,139,48,27,166,77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,102,143,54,65,25,63,161,1,216,80,73,209,76,132,187,208,89,18,169,200,196,135,130,116,188,159,86,164,100,109,198,173,186,3,64,52,217,226,250,124,123,5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,223,183,170,213,119,248,152,2,44,154,163,70,221,153,101,155,167,43,172,9,129,22,39,253,19,98,108,110,79,113,224,232,178,185,112,104,218,246,97,228,251,34,242,193,238,210,144,12,191,179,162,241,81,51,145,235,249,14,239,107,49,192,214,31,181,199,106,157,184,84,204,176,115,121,50,45,127,4,150,254,138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180];
+    for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
+
+    function dot3(g, x, y, z) { return g[0]*x + g[1]*y + g[2]*z; }
+
+    function simplex3D(x, y, z) {
+      const F3 = 1/3, G3 = 1/6;
+      const s = (x + y + z) * F3;
+      const i = Math.floor(x + s), j = Math.floor(y + s), k = Math.floor(z + s);
+      const t = (i + j + k) * G3;
+      const X0 = i - t, Y0 = j - t, Z0 = k - t;
+      const x0 = x - X0, y0 = y - Y0, z0 = z - Z0;
+
+      let i1, j1, k1;
+      if (x0 >= y0) {
+        if (y0 >= z0)      { i1=1; j1=0; k1=0; }
+        else if (x0 >= z0) { i1=1; j1=0; k1=0; }
+        else               { i1=0; j1=0; k1=1; }
+      } else {
+        if (y0 < z0)       { i1=0; j1=0; k1=1; }
+        else if (x0 < z0)  { i1=0; j1=1; k1=0; }
+        else               { i1=0; j1=1; k1=0; }
+      }
+
+      const x1 = x0 - i1 + G3, y1 = y0 - j1 + G3, z1 = z0 - k1 + G3;
+      const x2 = x0 - 1 + 3*G3, y2 = y0 - 1 + 3*G3, z2 = z0 - 1 + 3*G3;
+
+      const ii = i & 255, jj = j & 255, kk = k & 255;
+      let n0=0, n1=0, n2=0, n3=0;
+      let t0 = 0.6 - x0*x0 - y0*y0 - z0*z0;
+      if (t0 > 0) { t0 *= t0; n0 = t0 * t0 * dot3(Grad3[perm[ii+perm[jj+perm[kk]]]%12], x0, y0, z0); }
+      let t1 = 0.6 - x1*x1 - y1*y1 - z1*z1;
+      if (t1 > 0) { t1 *= t1; n1 = t1 * t1 * dot3(Grad3[perm[ii+i1+perm[jj+j1+perm[kk+k1]]]%12], x1, y1, z1); }
+      let t2 = 0.6 - x2*x2 - y2*y2 - z2*z2;
+      if (t2 > 0) { t2 *= t2; n2 = t2 * t2 * dot3(Grad3[perm[ii+1+perm[jj+1+perm[kk+1]]]%12], x2, y2, z2); }
+      let t3 = 0.6 - (x0-1)*(x0-1) - (y0-1)*(y0-1) - (z0-1)*(z0-1);
+      if (t3 > 0) { t3 *= t3; n3 = t3 * t3 * dot3(Grad3[perm[ii+1+perm[jj+1+perm[kk+1]]]%12], x0-1, y0-1, z0-1); }
+
+      return 35 * (n0 + n1 + n2 + n3);
+    }
+
+    function fbm3D(x, y, z, octaves=4) {
+      let value = 0, amp = 1, freq = 1, max = 0;
+      for (let i = 0; i < octaves; i++) {
+        value += amp * simplex3D(x*freq, y*freq, z*freq);
+        max += amp;
+        amp *= 0.5;
+        freq *= 2;
+      }
+      return value / max;
+    }
+
+    // ============================================================
+    // REALISTIC BRAIN GEOMETRY
+    // ============================================================
+    function createBrainGeometry() {
+      const group = new THREE.Group();
+      const brainMaterial = new THREE.MeshPhysicalMaterial({
+        color: '#c8c8d4',
+        metalness: 0.0,
+        roughness: 0.25,
+        clearcoat: 0.3,
+        clearcoatRoughness: 0.25,
+        transparent: true,
+        opacity: 0.75,
+        envMapIntensity: 0.5,
+      });
+
+      const glassMaterial = new THREE.MeshPhysicalMaterial({
+        color: '#e8e8f0',
+        metalness: 0.0,
+        roughness: 0.15,
+        clearcoat: 0.6,
+        clearcoatRoughness: 0.1,
+        transparent: true,
+        opacity: 0.55,
+        envMapIntensity: 0.6,
+      });
+
+      const vesselsMaterial = new THREE.MeshStandardMaterial({
+        color: '#b0a0c0',
+        roughness: 0.3,
+        metalness: 0.05,
+        transparent: true,
+        opacity: 0.5,
+      });
+
+      // Displace sphere vertices to create brain folds
+      function createHemisphere(cx, segments) {
+        const baseGeom = new THREE.SphereGeometry(1, segments, segments);
+
+        // Scale to brain-like proportions
+        const positions = baseGeom.attributes.position;
+        for (let i = 0; i < positions.count; i++) {
+          let x = positions.getX(i);
+          let y = positions.getY(i);
+          let z = positions.getZ(i);
+
+          // Flatten bottom
+          if (y < -0.4) y *= 0.7;
+
+          // Stretch back (temporal/occipital lobes)
+          if (z < 0) z *= 0.85;
+
+          // Narrow front
+          if (z > 0.5) x *= 0.85;
+
+          // Push temporal lobe out
+          if (y < -0.1 && Math.abs(x) > 0.4) {
+            x *= 1.08;
+          }
+
+          // Offset hemisphere from center
+          x += cx;
+
+          positions.setXYZ(i, x, y, z);
+        }
+        baseGeom.computeVertexNormals();
+
+        // Apply brain fold displacement using FBM noise
+        const dispPositions = baseGeom.attributes.position;
+        const normals = baseGeom.attributes.normal;
+        for (let i = 0; i < dispPositions.count; i++) {
+          const x = dispPositions.getX(i);
+          const y = dispPositions.getY(i);
+          const z = dispPositions.getZ(i);
+          const nx = normals.getX(i);
+          const ny = normals.getY(i);
+          const nz = normals.getZ(i);
+
+          // Multi-scale noise for gyri/sulci pattern
+          const noiseVal = fbm3D(x * 3.5, y * 3.5, z * 3.5, 5);
+          const displacement = noiseVal * 0.12;
+
+          // Displace along normal
+          dispPositions.setXYZ(i,
+            x + nx * displacement,
+            y + ny * displacement,
+            z + nz * displacement
+          );
+        }
+        baseGeom.computeVertexNormals();
+        return baseGeom;
+      }
+
+      // Left hemisphere
+      const leftGeom = createHemisphere(-0.15, 128);
+      const leftMesh = new THREE.Mesh(leftGeom, brainMaterial.clone());
+      group.add(leftMesh);
+
+      // Right hemisphere
+      const rightGeom = createHemisphere(0.15, 128);
+      const rightMesh = new THREE.Mesh(rightGeom, brainMaterial.clone());
+      group.add(rightMesh);
+
+      // Cerebellum (smaller, at back-bottom)
+      const cerebellumGeom = new THREE.SphereGeometry(0.42, 64, 64);
+      const cPos = cerebellumGeom.attributes.position;
+      for (let i = 0; i < cPos.count; i++) {
+        let cx = cPos.getX(i), cy = cPos.getY(i), cz = cPos.getZ(i);
+        cz *= 0.55; // flatten
+        cy -= 0.85; // move down
+        cz -= 0.55; // move back
+        const cNoise = fbm3D(cx * 5, cy * 5, cz * 5, 4);
+        const nd = cNoise * 0.07;
+        const len = Math.sqrt(cx*cx + cy*cy + cz*cz) || 1;
+        cPos.setXYZ(i, cx + (cx/len)*nd, cy + (cy/len)*nd, cz + (cz/len)*nd);
+      }
+      cerebellumGeom.computeVertexNormals();
+      const cerebellum = new THREE.Mesh(cerebellumGeom, brainMaterial.clone());
+      cerebellum.position.set(0, -0.55, -0.45);
+      cerebellum.scale.set(0.7, 0.5, 0.65);
+      group.add(cerebellum);
+
+      // Brain stem
+      const stemGeom = new THREE.CylinderGeometry(0.15, 0.22, 0.9, 32, 8);
+      const stem = new THREE.Mesh(stemGeom, vesselsMaterial.clone());
+      stem.position.set(0, -1.05, -0.15);
+      stem.rotation.x = 0.25;
+      group.add(stem);
+
+      // Glass outer shell (semi-transparent envelope)
+      const shellGeom = new THREE.SphereGeometry(1.15, 64, 64);
+      const shellPositions = shellGeom.attributes.position;
+      for (let i = 0; i < shellPositions.count; i++) {
+        let y = shellPositions.getY(i);
+        if (y < -0.5) y *= 0.75;
+        shellPositions.setY(i, y);
+      }
+      shellGeom.computeVertexNormals();
+      const shell = new THREE.Mesh(shellGeom, glassMaterial.clone());
+      shell.scale.set(1.02, 1.02, 0.95);
+      shell.position.y = -0.05;
+      group.add(shell);
+
+      return { group, leftMesh, rightMesh, cerebellum, shell, stem, brainMaterial, glassMaterial };
+    }
+
+    // ============================================================
+    // RIBBONS (thick, prominent, colorful)
+    // ============================================================
+    const ribbonsCanvas = document.getElementById('ribbons-canvas');
+    const ribbonsRenderer = new THREE.WebGLRenderer({
+      canvas: ribbonsCanvas, antialias: true, alpha: true
+    });
+    ribbonsRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    ribbonsRenderer.setSize(window.innerWidth, window.innerHeight);
+
+    const ribbonsScene = new THREE.Scene();
+    const ribbonsCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+    ribbonsCamera.position.z = 1;
+
+    const RIBBON_COUNT = 7;
+    const POINTS_PER_RIBBON = 120;
+    const ribbons = [];
+
+    // Vibrant ribbon colors
+    const ribbonColors = [
+      '#5e5ce6', '#0071e3', '#40c8e0', '#8e8cff',
+      '#bf5af2', '#64d2ff', '#ff6b8a'
+    ];
+
+    for (let r = 0; r < RIBBON_COUNT; r++) {
+      const positions = new Float32Array(POINTS_PER_RIBBON * 3);
+      const colors = new Float32Array(POINTS_PER_RIBBON * 3);
+      const color = new THREE.Color(ribbonColors[r]);
+
+      for (let i = 0; i < POINTS_PER_RIBBON; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 0.4;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 0.6;
+        positions[i * 3 + 2] = 0;
+        const alpha = 1 - (i / POINTS_PER_RIBBON) * 0.7;
+        colors[i * 3] = color.r * alpha;
+        colors[i * 3 + 1] = color.g * alpha;
+        colors[i * 3 + 2] = color.b * alpha;
+      }
+
+      const geom = new THREE.BufferGeometry();
+      geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+      const mat = new THREE.PointsMaterial({
+        size: 0.018,
+        vertexColors: true,
+        blending: THREE.NormalBlending,
+        depthWrite: false,
+        transparent: true,
+        opacity: 0.75,
+      });
+
+      const points = new THREE.Points(geom, mat);
+
+      ribbons.push({
+        points,
+        color,
+        baseSpring: 0.015 + Math.random() * 0.025,
+        baseFriction: 0.86 + Math.random() * 0.08,
+        mouseOffset: new THREE.Vector3(
+          (r - (RIBBON_COUNT - 1) / 2) * 0.08,
+          (Math.random() - 0.5) * 0.2,
+          0
+        ),
+        headVel: new THREE.Vector3(),
+      });
+
+      ribbonsScene.add(points);
+    }
+
+    // Also add a few thick line-style ribbons for more presence
+    const thickRibbonGroup = new THREE.Group();
+    for (let r = 0; r < 4; r++) {
+      const linePts = [];
+      for (let i = 0; i < 60; i++) {
+        linePts.push(new THREE.Vector3(
+          (Math.random() - 0.5) * 0.3,
+          (Math.random() - 0.5) * 0.5,
+          0
+        ));
+      }
+      const lineGeom = new THREE.BufferGeometry().setFromPoints(linePts);
+      const lineMat = new THREE.LineBasicMaterial({
+        color: new THREE.Color(ribbonColors[r + 2]),
+        transparent: true,
+        opacity: 0.3,
+        blending: THREE.NormalBlending,
+        depthWrite: false,
+        linewidth: 1,
+      });
+      const line = new THREE.Line(lineGeom, lineMat);
+      thickRibbonGroup.add(line);
+    }
+    ribbonsScene.add(thickRibbonGroup);
+
+    // Mouse tracking
+    const ribbonMouse = new THREE.Vector3();
+    const ribbonMouseTarget = new THREE.Vector3();
+
+    window.addEventListener('mousemove', (e) => {
+      ribbonMouseTarget.x = (e.clientX / window.innerWidth) * 2 - 1;
+      ribbonMouseTarget.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    });
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length) {
+        ribbonMouseTarget.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+        ribbonMouseTarget.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+      }
+    }, { passive: true });
+
+    function updateRibbons(time) {
+      ribbonMouse.lerp(ribbonMouseTarget, 0.04);
+
+      ribbons.forEach(ribbon => {
+        const posAttr = ribbon.points.geometry.attributes.position;
+        const colorAttr = ribbon.points.geometry.attributes.color;
+        const arr = posAttr.array;
+
+        const headTarget = ribbonMouse.clone().add(ribbon.mouseOffset);
+        const dx = headTarget.x - arr[0];
+        const dy = headTarget.y - arr[1];
+        ribbon.headVel.x += dx * ribbon.baseSpring;
+        ribbon.headVel.y += dy * ribbon.baseSpring;
+        ribbon.headVel.multiplyScalar(ribbon.baseFriction);
+        arr[0] += ribbon.headVel.x;
+        arr[1] += ribbon.headVel.y;
+
+        for (let i = 1; i < POINTS_PER_RIBBON; i++) {
+          const idx = i * 3;
+          const prevIdx = (i - 1) * 3;
+          arr[idx] += (arr[prevIdx] - arr[idx]) * 0.22;
+          arr[idx + 1] += (arr[prevIdx + 1] - arr[idx + 1]) * 0.22;
+
+          const alpha = 1 - (i / POINTS_PER_RIBBON) * 0.7;
+          colorAttr.array[idx] = ribbon.color.r * alpha;
+          colorAttr.array[idx + 1] = ribbon.color.g * alpha;
+          colorAttr.array[idx + 2] = ribbon.color.b * alpha;
+        }
+
+        posAttr.needsUpdate = true;
+        colorAttr.needsUpdate = true;
+      });
+
+      ribbonsRenderer.render(ribbonsScene, ribbonsCamera);
+    }
+
+    // ============================================================
+    // 3D BRAIN SCENE
+    // ============================================================
+    const brainCanvas = document.getElementById('brain-canvas');
+    const brainRenderer = new THREE.WebGLRenderer({
+      canvas: brainCanvas, antialias: true, alpha: true
+    });
+    brainRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    brainRenderer.setSize(window.innerWidth, window.innerHeight);
+    brainRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+    brainRenderer.toneMappingExposure = 1.2;
+
+    const brainScene = new THREE.Scene();
+    const brainCamera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 50);
+    brainCamera.position.set(0, 0.15, 8);
+    brainCamera.lookAt(0, -0.2, 0);
+
+    const { group: brainGroup, leftMesh, rightMesh, cerebellum, shell, stem,
+            brainMaterial, glassMaterial } = createBrainGeometry();
+    brainScene.add(brainGroup);
+
+    // Orbiting particles
+    const particlesGeom = new THREE.BufferGeometry();
+    const pCount = 300;
+    const pPositions = new Float32Array(pCount * 3);
+    for (let i = 0; i < pCount; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI;
+      const r = 1.8 + Math.random() * 2.2;
+      pPositions[i * 3] = Math.sin(phi) * Math.cos(theta) * r;
+      pPositions[i * 3 + 1] = Math.sin(phi) * Math.sin(theta) * r * 0.65;
+      pPositions[i * 3 + 2] = Math.cos(phi) * r * 0.55;
+    }
+    particlesGeom.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+    const particlesMat = new THREE.PointsMaterial({
+      color: '#a0a0d0',
+      size: 0.012,
+      transparent: true,
+      opacity: 0.35,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const particles = new THREE.Points(particlesGeom, particlesMat);
+    brainScene.add(particles);
+
+    // Lighting
+    brainScene.add(new THREE.AmbientLight('#ffffff', 1.2));
+    const keyLight = new THREE.DirectionalLight('#ffffff', 3.5);
+    keyLight.position.set(5, 3, 6);
+    brainScene.add(keyLight);
+    const fillLight = new THREE.DirectionalLight('#c8d0ff', 1.8);
+    fillLight.position.set(-3, 0, -2);
+    brainScene.add(fillLight);
+    const rimLight = new THREE.DirectionalLight('#ffffff', 2.0);
+    rimLight.position.set(0, 5, 1);
+    brainScene.add(rimLight);
+    const bottomLight = new THREE.DirectionalLight('#e0e8ff', 1.5);
+    bottomLight.position.set(0, -4, 3);
+    brainScene.add(bottomLight);
+
+    function updateBrain(time) {
+      brainGroup.rotation.y = Math.sin(time * 0.00025) * 0.3;
+      brainGroup.rotation.x = Math.sin(time * 0.00035) * 0.06;
+      brainGroup.position.y = Math.sin(time * 0.0004) * 0.2;
+      particles.rotation.y += 0.0002;
+      particles.rotation.x += 0.0001;
+      brainRenderer.render(brainScene, brainCamera);
+    }
+
+    // ============================================================
+    // RENDER LOOP
+    // ============================================================
+    function animate(time) {
+      requestAnimationFrame(animate);
+      updateRibbons(time);
+      updateBrain(time);
+    }
+    requestAnimationFrame(animate);
+
+    // ============================================================
+    // RESIZE
+    // ============================================================
+    window.addEventListener('resize', () => {
+      const w = window.innerWidth, h = window.innerHeight;
+      ribbonsRenderer.setSize(w, h);
+      brainRenderer.setSize(w, h);
+      brainCamera.aspect = w / h;
+      brainCamera.updateProjectionMatrix();
+    });
+
+    // ============================================================
+    // TOGGLE SWITCH
+    // ============================================================
+    const toggleTrack = document.getElementById('toggleTrack');
+    const toggleLabelOn = document.getElementById('toggleLabelOn');
+    const toggleLabelOff = document.getElementById('toggleLabelOff');
+    const ctaBtn = document.getElementById('ctaBtn');
+    let isOn = false;
+
+    // Collect all brain meshes for glow toggle
+    const allBrainMeshes = [leftMesh, rightMesh, cerebellum, shell, stem];
+
+    function setToggle(state) {
+      isOn = state;
+      if (state) {
+        toggleTrack.classList.add('on');
+        toggleTrack.setAttribute('aria-checked', 'true');
+        toggleLabelOn.classList.add('active');
+        toggleLabelOff.classList.remove('active');
+        ctaBtn.classList.add('on');
+
+        // Brain: intensify — slightly more opaque, warmer tone
+        allBrainMeshes.forEach(m => {
+          if (!m || !m.material) return;
+          m.material.opacity = Math.min(1, m.material.opacity + 0.2);
+          if (m.material.emissive) m.material.emissive = new THREE.Color('#4040a0');
+          if (m.material.emissiveIntensity !== undefined) m.material.emissiveIntensity = 0.3;
+          if (m.material.clearcoat !== undefined) m.material.clearcoat = 0.5;
+        });
+        particlesMat.opacity = 0.6;
+      } else {
+        toggleTrack.classList.remove('on');
+        toggleTrack.setAttribute('aria-checked', 'false');
+        toggleLabelOn.classList.remove('active');
+        toggleLabelOff.classList.add('active');
+        ctaBtn.classList.remove('on');
+
+        allBrainMeshes.forEach(m => {
+          if (!m || !m.material) return;
+          m.material.opacity = Math.max(0.5, m.material.opacity - 0.2);
+          if (m.material.emissive) m.material.emissive = new THREE.Color('#000000');
+          if (m.material.emissiveIntensity !== undefined) m.material.emissiveIntensity = 0;
+          if (m.material.clearcoat !== undefined) m.material.clearcoat = 0.3;
+        });
+        particlesMat.opacity = 0.35;
+      }
+    }
+
+    toggleTrack.addEventListener('click', () => setToggle(!isOn));
+    toggleTrack.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setToggle(!isOn); }
+    });
+
+    // ============================================================
+    // AUTH STATE
+    // ============================================================
+    const userData = JSON.parse(localStorage.getItem('gynecold_user') || 'null');
+    const navAuth = document.getElementById('navAuth');
+    if (userData) {
+      navAuth.textContent = userData.username;
+      navAuth.href = '../chat.html';
+      navAuth.style.color = 'var(--text-primary)';
+    }
+
+    console.log('%c GyneCold AI v3 %c Apple Glass + Realistic Brain + Ribbons ',
+      'background:#5e5ce6;color:#fff;padding:8px 12px;border-radius:8px 0 0 8px;font-weight:700;',
+      'background:#e8e8f0;color:#1d1d1f;padding:8px 12px;border-radius:0 8px 8px 0;');
+  </script>
+</body>
+</html>

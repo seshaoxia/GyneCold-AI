@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect width="32" height="32" rx="6" fill="#000"/>
+  <!-- DNA 螺旋简化版 -->
+  <path d="M16 4 C16 10, 8 14, 8 18 C8 22, 16 26, 16 28" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.7"/>
+  <path d="M8 4 C8 10, 16 14, 16 18 C16 22, 8 26, 8 28" fill="none" stroke="#888" stroke-width="1.5" opacity="0.7"/>
+  <!-- 雪花 -->
+  <g transform="translate(12, 16)" opacity="0.5">
+    <line x1="0" y1="-5" x2="0" y2="5" stroke="#fff" stroke-width="0.8"/>
+    <line x1="-4.3" y1="-2.5" x2="4.3" y2="2.5" stroke="#fff" stroke-width="0.8"/>
+    <line x1="-4.3" y1="2.5" x2="4.3" y2="-2.5" stroke="#fff" stroke-width="0.8"/>
+  </g>
+</svg>

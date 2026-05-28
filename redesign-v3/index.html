@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GyneCold AI — 妇科寒症智能研究平台</title>
+<link href="../favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;family=Noto+Sans+SC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-error-container": "#ffdad6",
+                "outline-variant": "#464554",
+                "on-secondary-fixed-variant": "#00458f",
+                "primary-container": "#5e5ce6",
+                "on-secondary-fixed": "#001b3f",
+                "tertiary-container": "#007a8b",
+                "on-surface": "#e2e2e2",
+                "surface-bright": "#393939",
+                "on-primary": "#1800a7",
+                "surface-container-high": "#2a2a2a",
+                "surface-variant": "#353535",
+                "secondary-fixed-dim": "#abc7ff",
+                "surface-container": "#1f1f1f",
+                "on-tertiary-fixed": "#001f25",
+                "primary-fixed-dim": "#c2c1ff",
+                "tertiary": "#54d7ef",
+                "inverse-on-surface": "#303030",
+                "surface-container-highest": "#353535",
+                "surface-tint": "#c2c1ff",
+                "inverse-primary": "#4d4ad5",
+                "outline": "#918fa0",
+                "error": "#ffb4ab",
+                "on-primary-container": "#f4f1ff",
+                "on-tertiary-fixed-variant": "#004e5a",
+                "secondary": "#abc7ff",
+                "on-tertiary-container": "#dcf8ff",
+                "on-tertiary": "#00363e",
+                "inverse-surface": "#e2e2e2",
+                "surface-dim": "#131313",
+                "on-background": "#e2e2e2",
+                "secondary-fixed": "#d7e2ff",
+                "surface": "#131313",
+                "on-error": "#690005",
+                "primary-fixed": "#e2dfff",
+                "secondary-container": "#0372e4",
+                "error-container": "#93000a",
+                "on-primary-fixed": "#0c006b",
+                "on-secondary-container": "#fefcff",
+                "tertiary-fixed": "#a3eeff",
+                "primary": "#c2c1ff",
+                "on-surface-variant": "#c7c4d7",
+                "on-primary-fixed-variant": "#332dbc",
+                "background": "#131313",
+                "surface-container-lowest": "#0e0e0e",
+                "surface-container-low": "#1b1b1b",
+                "on-secondary": "#002f66",
+                "tertiary-fixed-dim": "#54d7ef"
+        },
+        "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "gutter": "24px",
+                "margin-desktop": "64px",
+                "container-max": "1440px",
+                "stack-md": "40px",
+                "stack-lg": "80px",
+                "unit": "8px",
+                "margin-mobile": "24px",
+                "stack-xl": "120px"
+        },
+        "fontFamily": {
+                "headline-lg": ["Inter"],
+                "body-lg": ["Inter"],
+                "headline-lg-mobile": ["Inter"],
+                "display-lg": ["Inter"],
+                "label-sm": ["Inter"],
+                "body-md": ["Inter"],
+                "display-md": ["Inter"],
+                "label-md": ["Inter"]
+        },
+        "fontSize": {
+                "headline-lg": ["32px", {"lineHeight":"1.3","letterSpacing":"-0.02em","fontWeight":"400"}],
+                "body-lg": ["18px", {"lineHeight":"1.6","letterSpacing":"0em","fontWeight":"400"}],
+                "headline-lg-mobile": ["28px", {"lineHeight":"1.3","letterSpacing":"-0.02em","fontWeight":"400"}],
+                "display-lg": ["72px", {"lineHeight":"1.1","letterSpacing":"-0.04em","fontWeight":"200"}],
+                "label-sm": ["12px", {"lineHeight":"1.2","letterSpacing":"0.05em","fontWeight":"600"}],
+                "body-md": ["16px", {"lineHeight":"1.5","letterSpacing":"0em","fontWeight":"400"}],
+                "display-md": ["48px", {"lineHeight":"1.2","letterSpacing":"-0.03em","fontWeight":"300"}],
+                "label-md": ["14px", {"lineHeight":"1.2","letterSpacing":"0.02em","fontWeight":"500"}]
+        }
+      },
+    },
+  }
+</script>
+<style>
+    body {
+      font-family: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+      background: #fafafa;
+      color: #1d1d1f;
+      overflow: hidden;
+    }
+
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .glass-nav {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .hero-title {
+      font-size: clamp(48px, 8vw, 84px);
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      line-height: 1.05;
+    }
+
+    .text-shimmer {
+      background: linear-gradient(110deg, #1d1d1f 20%, #5e5ce6 40%, #0071e3 60%, #1d1d1f 80%);
+      background-size: 200% auto;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: shimmer 8s linear infinite;
+    }
+
+    @keyframes shimmer {
+      to { background-position: 200% center; }
+    }
+
+    .liquid-btn {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .liquid-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+      transform: translateX(-100%);
+      transition: 0.6s;
+    }
+
+    .liquid-btn:hover {
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 12px 48px rgba(94, 92, 230, 0.15), 0 4px 16px rgba(0, 0, 0, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .liquid-btn:hover::before {
+      transform: translateX(100%);
+    }
+
+    .liquid-btn.on {
+      background: var(--primary-container, #5e5ce6);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 8px 32px rgba(94, 92, 230, 0.3);
+    }
+
+    .liquid-btn.on:hover {
+      background: #4b49d6;
+      box-shadow: 0 12px 48px rgba(94, 92, 230, 0.4);
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03);
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.06);
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .mono-num {
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: -0.03em;
+    }
+
+    .toggle-switch {
+      width: 56px;
+      height: 32px;
+      background: rgba(0, 0, 0, 0.08);
+      border-radius: 99px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .toggle-switch.on {
+      background: #5e5ce6;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .toggle-knob {
+      width: 26px;
+      height: 26px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.1);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .toggle-switch.on .toggle-knob {
+      transform: translateX(24px);
+    }
+
+    .ripple-effect {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, transparent 60%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1;
+      transform: scale(0.5);
+      transition: opacity 0.4s, transform 0.8s cubic-bezier(0.1, 0.9, 0.2, 1);
+    }
+
+    .ripple-effect.active {
+      opacity: 0.3;
+      transform: scale(2);
+      transition: opacity 0.1s, transform 0s;
+    }
+</style>
+</head>
+<body class="antialiased">
+<canvas id="bg-canvas"></canvas>
+<div class="ripple-effect" id="ripple"></div>
+
+<!-- Navigation -->
+<nav class="fixed top-6 left-1/2 -translate-x-1/2 z-50 glass-nav rounded-full px-2 py-2 flex items-center gap-1">
+  <a class="flex items-center gap-2 px-4 py-2 text-sm font-semibold tracking-tight text-gray-900 hover:opacity-80 transition-opacity" href="#">
+    <img alt="GyneCold AI" class="h-5" src="../logo.svg"/>
+    <span>GyneCold <span class="font-normal text-gray-500">AI</span></span>
+  </a>
+  <div class="w-px h-5 bg-gray-200 mx-1 hidden md:block"></div>
+  <div class="hidden md:flex items-center gap-1">
+    <a class="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-100/50 rounded-full transition-colors" href="#">首页</a>
+    <a class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50/50 rounded-full transition-colors" href="../guide.html">文档</a>
+    <a class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50/50 rounded-full transition-colors" href="#">关于</a>
+    <a class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50/50 rounded-full transition-colors" href="../login.html" id="navAuth">登录</a>
+  </div>
+  <a class="ml-2 px-5 py-2 text-sm font-semibold text-white bg-primary-container hover:bg-indigo-600 rounded-full shadow-md hover:shadow-lg transition-all hidden md:block" href="../chat.html">
+    开始分析
+  </a>
+</nav>
+
+<!-- Main Content -->
+<main class="relative z-10 w-full h-screen flex flex-col items-center justify-center px-6">
+  <div class="text-center max-w-4xl mx-auto mb-12">
+    <h1 class="hero-title mb-6">
+      妇科寒症<br/>
+      <span class="text-shimmer">智能研究平台</span>
+    </h1>
+    <p class="text-lg md:text-xl text-gray-500 font-light leading-relaxed max-w-2xl mx-auto tracking-wide">
+      基于大语言模型与多模态感知技术，构建妇科寒症精准辨证、智能辅助诊疗与机制研究一体化的 AI 科研平台
+    </p>
+  </div>
+
+  <div class="flex items-center gap-4 mb-10">
+    <span class="text-sm font-medium text-gray-500 transition-colors" id="labelOff">待机</span>
+    <div aria-checked="false" class="toggle-switch" id="toggleBtn" role="switch" tabindex="0">
+      <div class="toggle-knob"></div>
+    </div>
+    <span class="text-sm font-medium text-gray-400 transition-colors" id="labelOn">开始研究</span>
+  </div>
+
+  <a class="liquid-btn text-gray-900 font-semibold px-8 py-4 rounded-full flex items-center gap-2 mb-16" href="../chat.html" id="mainCta">
+    进入研究平台
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+  </a>
+
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
+    <div class="stat-card rounded-3xl p-8 text-center md:translate-y-4">
+      <div class="mono-num text-4xl font-bold text-gray-900 mb-2">98.7%</div>
+      <div class="text-sm font-semibold text-gray-800">寒症证型识别</div>
+      <div class="text-xs text-gray-500 mt-1">准确率</div>
+    </div>
+    <div class="stat-card rounded-3xl p-8 text-center">
+      <div class="mono-num text-4xl font-bold text-gray-900 mb-2">12,000+</div>
+      <div class="text-sm font-semibold text-gray-800">知识库条目</div>
+      <div class="text-xs text-gray-500 mt-1">文献支撑</div>
+    </div>
+    <div class="stat-card rounded-3xl p-8 text-center md:translate-y-4">
+      <div class="mono-num text-4xl font-bold text-gray-900 mb-2">多模型</div>
+      <div class="text-sm font-semibold text-gray-800">AI 推理引擎</div>
+      <div class="text-xs text-gray-500 mt-1">支持各大模型</div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // Fluid Background Animation
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let w, h;
+  let time = 0;
+  let clickIntensity = 0;
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+
+    const grad = ctx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, '#fafafa');
+    grad.addColorStop(1, '#f0f0f5');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    time += 0.002 + (clickIntensity * 0.01);
+    if (clickIntensity > 0) clickIntensity *= 0.92;
+
+    const colors = [
+      `rgba(94, 92, 230, ${0.03 + clickIntensity * 0.05})`,
+      `rgba(0, 113, 227, ${0.02 + clickIntensity * 0.04})`,
+      `rgba(171, 199, 255, ${0.04 + clickIntensity * 0.06})`
+    ];
+
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(0, h);
+
+      for (let x = 0; x <= w; x += 60) {
+        const y = h * 0.6 +
+                  Math.sin(x * 0.002 + time * (i + 1)) * 200 +
+                  Math.cos(x * 0.001 - time * (i + 0.5)) * 150 +
+                  Math.sin(x * 0.005 + time * 2) * (clickIntensity * 100);
+        ctx.lineTo(x, y);
+      }
+
+      ctx.lineTo(w, h);
+      ctx.fillStyle = colors[i];
+      ctx.fill();
+    }
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  // Interaction Ripple
+  const ripple = document.getElementById('ripple');
+  document.addEventListener('mousedown', (e) => {
+    clickIntensity = 1;
+    ripple.style.left = e.clientX + 'px';
+    ripple.style.top = e.clientY + 'px';
+    ripple.classList.remove('active');
+    void ripple.offsetWidth;
+    ripple.classList.add('active');
+
+    setTimeout(() => { ripple.classList.remove('active'); }, 400);
+  });
+
+  // Toggle Logic
+  const toggleBtn = document.getElementById('toggleBtn');
+  const labelOn = document.getElementById('labelOn');
+  const labelOff = document.getElementById('labelOff');
+  const mainCta = document.getElementById('mainCta');
+  let isToggled = false;
+
+  function updateToggle() {
+    isToggled = !isToggled;
+    if (isToggled) {
+      toggleBtn.classList.add('on');
+      toggleBtn.setAttribute('aria-checked', 'true');
+      labelOn.classList.replace('text-gray-400', 'text-gray-900');
+      labelOff.classList.replace('text-gray-900', 'text-gray-400');
+      mainCta.classList.add('on');
+    } else {
+      toggleBtn.classList.remove('on');
+      toggleBtn.setAttribute('aria-checked', 'false');
+      labelOn.classList.replace('text-gray-900', 'text-gray-400');
+      labelOff.classList.replace('text-gray-400', 'text-gray-900');
+      mainCta.classList.remove('on');
+    }
+  }
+
+  toggleBtn.addEventListener('click', updateToggle);
+  toggleBtn.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      updateToggle();
+    }
+  });
+
+  // Auth state
+  const userData = JSON.parse(localStorage.getItem('gynecold_user') || 'null');
+  if (userData) {
+    const navAuth = document.getElementById('navAuth');
+    navAuth.textContent = userData.username;
+    navAuth.href = '../chat.html';
+    navAuth.classList.add('text-gray-900');
+  }
+</script>
+</body></html>
