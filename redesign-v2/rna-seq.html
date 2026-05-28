@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RNA-seq Analysis · GyneCold AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: { extend: {
+      colors: { "primary-container": "#ffb347","primary-fixed-dim": "#ffb95a","on-primary-container": "#704700",
+        "background": "#131314","surface": "#131314","on-surface": "#e5e2e3","on-surface-variant": "#d6c3b0",
+        "tertiary-fixed-dim": "#cfbdfe","tertiary-container": "#cbb8f9","secondary-fixed-dim": "#ffb59c",
+        "error": "#ffb4ab","error-container": "#93000a" }
+    }}
+  }
+</script>
+<style>
+  body { background-color: #0A0A0B; color: #e5e2e3; font-family: 'Inter', sans-serif; }
+  .ambient-glow { position: fixed; border-radius: 50%; filter: blur(200px); z-index: -1; opacity: 0.3; pointer-events: none; }
+  .glow-amber { background: #FFB347; width: 50vw; height: 50vh; top: -10vh; left: -10vw; }
+  .glow-coral { background: #FF7F50; width: 40vw; height: 40vh; bottom: -10vh; right: -5vw; }
+  .glass-panel { background: rgba(255,255,255,0.03); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.05); border-top: 1px solid rgba(255,221,182,0.2); }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #0A0A0B; }
+  ::-webkit-scrollbar-thumb { background: #FFB347; border-radius: 2px; }
+  .quick-btn { display: block; width: 100%; text-align: left; padding: 8px 12px; border-radius: 8px; background: transparent; border: none; color: #d6c3b0; font-size: 13px; cursor: pointer; transition: all 0.2s; margin-bottom: 4px; }
+  .quick-btn:hover { background: rgba(255,179,71,0.06); color: #e5e2e3; }
+  .msg-bubble { line-height: 1.7; word-break: break-word; }
+  .msg-bubble p { margin-bottom: 8px; }
+  .msg-bubble ul { margin: 8px 0 8px 20px; }
+  .msg-bubble code { background: rgba(255,179,71,0.08); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+  .msg-bubble strong { color: #fff; }
+  .msg-bubble a { color: #FFB347; }
+  .msg-bubble table { border-collapse: collapse; margin: 8px 0; width: 100%; font-size: 13px; }
+  .msg-bubble th, .msg-bubble td { border: 1px solid rgba(255,255,255,0.08); padding: 6px 10px; text-align: left; }
+  .msg-bubble th { background: rgba(255,179,71,0.08); color: #fff; }
+  .msg-bubble img { max-width: 100%; border-radius: 8px; margin: 8px 0; }
+  .loading-dots span { width: 6px; height: 6px; border-radius: 50%; background: #d6c3b0; animation: bounce 1.4s infinite; display: inline-block; }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,80%,100% { transform: scale(0.6); opacity: 0.3; } 40% { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="ambient-glow glow-amber"></div>
+<div class="ambient-glow glow-coral"></div>
+
+<aside class="fixed left-0 top-0 h-full w-64 glass-panel border-r border-white/10 flex flex-col z-10">
+  <div class="p-5 border-b border-white/10">
+    <a href="index.html" class="text-xl font-bold tracking-tight text-primary">GyneCold AI</a>
+    <div class="text-xs text-on-surface-variant/40 mt-0.5">RNA-seq Analysis</div>
+  </div>
+  <div class="p-4 border-b border-white/10 flex items-center gap-3">
+    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-primary-container to-primary-fixed-dim flex items-center justify-center text-on-primary-container text-sm font-bold" id="userAvatar">G</div>
+    <div class="flex-1"><div class="text-sm text-on-surface" id="userName">Guest</div></div>
+    <button onclick="logout()" class="text-on-surface-variant/40 hover:text-primary text-xs">Exit</button>
+  </div>
+  <div class="flex-1 overflow-y-auto p-4">
+    <button onclick="resetChat()" class="w-full text-left px-4 py-2 rounded-lg border border-dashed border-white/10 text-on-surface-variant/60 hover:text-primary hover:border-primary/30 text-sm transition-all mb-4">+ New Session</button>
+    <div class="mb-4">
+      <h4 class="text-xs text-on-surface-variant/40 uppercase tracking-wider mb-2 font-medium">Quick Actions</h4>
+      <button class="quick-btn" onclick="quickQuestion('Run differential expression analysis on my RNA-seq data')"><span class="material-symbols-outlined text-sm" style="vertical-align:middle;margin-right:6px;">play_arrow</span> Run DE Analysis</button>
+      <button class="quick-btn" onclick="quickQuestion('Use limma method, p-value 0.01, log2FC 1.5')"><span class="material-symbols-outlined text-sm" style="vertical-align:middle;margin-right:6px;">tune</span> Configure Parameters</button>
+      <button class="quick-btn" onclick="quickQuestion('Show volcano plot and heatmap')"><span class="material-symbols-outlined text-sm" style="vertical-align:middle;margin-right:6px;">bar_chart</span> View Results</button>
+      <button class="quick-btn" onclick="quickQuestion('List available analysis modules')"><span class="material-symbols-outlined text-sm" style="vertical-align:middle;margin-right:6px;">list</span> List Modules</button>
+    </div>
+    <div class="mb-4">
+      <h4 class="text-xs text-on-surface-variant/40 uppercase tracking-wider mb-2 font-medium">Switch Module</h4>
+      <a href="chat.html" class="quick-btn"><span class="material-symbols-outlined text-sm" style="vertical-align:middle;margin-right:6px;">chat</span> AI Assistant (All)</a>
+      <a href="mr.html" class="quick-btn"><span class="material-symbols-outlined text-sm" style="vertical-align:middle;margin-right:6px;">biotech</span> MR Analysis</a>
+    </div>
+  </div>
+  <div class="p-4 border-t border-white/10">
+    <a href="mailto:xty16631790636@163.com?subject=GyneCold RNA-seq Feedback" class="block text-center px-4 py-2 rounded-lg border border-white/10 text-on-surface-variant/60 hover:text-primary hover:border-primary/30 text-xs transition-all">Feedback</a>
+  </div>
+</aside>
+
+<main class="ml-64 flex flex-col min-h-screen z-10">
+  <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between" style="margin-left:0;">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-primary-container">monitoring</span>
+      <h1 class="text-lg font-semibold text-on-surface">RNA-seq Differential Expression</h1>
+    </div>
+    <div class="flex items-center gap-2 text-xs text-on-surface-variant/60">
+      <span class="w-2 h-2 rounded-full bg-green-400" id="statusDot"></span>
+      <span id="statusText">Connected</span>
+    </div>
+  </div>
+
+  <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4" id="messages">
+    <div class="flex gap-3">
+      <div class="w-8 h-8 rounded-full bg-on-tertiary-container/30 flex items-center justify-center flex-shrink-0 text-sm">🧬</div>
+      <div class="msg-bubble text-sm text-on-surface-variant/80">
+        <p><strong>RNA-seq Differential Expression Module</strong></p>
+        <p>Upload your expression matrix (CSV, rows=genes, cols=samples) and sample grouping file, then configure analysis parameters. I'll run limma-based DE analysis and generate publication-ready visualizations.</p>
+        <p>Example: <code>"Run DE analysis on /data/expression.csv with groups.csv, p-value 0.05"</code></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="px-6 py-4 border-t border-white/10">
+    <div class="glass-panel rounded-xl p-1 flex items-end gap-2">
+      <textarea id="userInput" rows="1" placeholder="Describe your RNA-seq analysis..." 
+                class="flex-1 bg-transparent border-none text-sm text-on-surface outline-none resize-none px-4 py-3"
+                style="max-height:120px;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+      <button onclick="document.getElementById('fileInput').click()" class="p-2 hover:text-primary transition-colors text-on-surface-variant/60">
+        <span class="material-symbols-outlined text-xl" style="vertical-align:middle;">attach_file</span>
+      </button>
+      <input type="file" id="fileInput" multiple accept=".csv,.tsv,.txt" onchange="handleFiles(this)" class="hidden">
+      <button onclick="sendMessage()" id="sendBtn" class="bg-gradient-to-r from-primary-container to-primary-fixed-dim text-on-primary-container px-6 py-2 rounded-full text-sm font-medium hover:shadow-[0_0_15px_rgba(255,179,71,0.3)] transition-all">Send</button>
+    </div>
+    <div class="text-xs text-on-surface-variant/30 text-right mt-1">Enter to send · Shift+Enter new line</div>
+  </div>
+</main>
+
+<script>
+  const userData = JSON.parse(localStorage.getItem('gynecold_user')||'null');
+  const isLoggedIn = !!userData;
+  if (!isLoggedIn) { window.location.href='login.html?redirect=rna-seq.html'; }
+  const USERNAME = userData.name||userData.username;
+  const USER_ID = 'gynecold-'+userData.username;
+  const USER_API_KEY = userData.api_key||'';
+  const AGENT_API = 'http://192.168.2.145:5001';
+
+  document.getElementById('userName').textContent = USERNAME;
+  document.getElementById('userAvatar').textContent = USERNAME.charAt(0).toUpperCase();
+  function logout() { localStorage.removeItem('gynecold_user'); window.location.href='login.html'; }
+
+  const messagesEl = document.getElementById('messages'), userInput = document.getElementById('userInput'), sendBtn = document.getElementById('sendBtn');
+  let pendingFiles = [], isLoading = false;
+
+  function handleFiles(input) { pendingFiles = pendingFiles.concat(Array.from(input.files)); input.value=''; }
+  function quickQuestion(text) { userInput.value=text; sendMessage(); }
+
+  async function resetChat() {
+    try { await fetch(AGENT_API+'/api/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:USER_ID})}); } catch{}
+    messagesEl.innerHTML=''; addMsg('assistant','Session reset. Ready for RNA-seq analysis.');
+  }
+
+  async function sendMessage() {
+    const text = userInput.value.trim();
+    if (!text && !pendingFiles.length) return;
+    userInput.value=''; addMsg('user',text); setLoading(true);
+    const lid=showLoading();
+    try {
+      let ctx='';
+      if(pendingFiles.length){ctx='\n[Attached files: '+pendingFiles.map(f=>f.name).join(', ')+']'; pendingFiles=[];}
+      removeLoading(lid);
+      const resp=await fetch(AGENT_API+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text+ctx,user_id:USER_ID,api_key:USER_API_KEY})});
+      const data=await resp.json();
+      if(data.error) addMsg('assistant','❌ '+data.error);
+      else await typeMsg('assistant',formatContent(data.reply));
+    } catch{removeLoading(lid);addMsg('assistant','❌ Cannot connect to AI Agent.');}
+    finally{setLoading(false);userInput.focus();}
+  }
+
+  async function typeMsg(role,html){
+    const div=document.createElement('div');div.className='flex gap-3';
+    const av=document.createElement('div');av.className='w-8 h-8 rounded-full bg-on-tertiary-container/30 flex items-center justify-center flex-shrink-0 text-sm';av.textContent=role==='user'?'👤':'🧬';
+    const bub=document.createElement('div');bub.className='msg-bubble text-sm text-on-surface-variant/80';
+    div.appendChild(av);div.appendChild(bub);messagesEl.appendChild(div);
+    const tmp=document.createElement('div');tmp.innerHTML=html;
+    const plain=tmp.textContent||'';let pos=0;
+    return new Promise(r=>{const tick=()=>{const nxt=Math.min(pos+3,plain.length);bub.textContent=plain.slice(0,nxt)+(nxt<plain.length?'▌':'');messagesEl.scrollTop=messagesEl.scrollHeight;pos=nxt;if(pos>=plain.length){bub.innerHTML=html;r();}else setTimeout(tick,15);};tick();});
+  }
+
+  function addMsg(role,html){
+    const div=document.createElement('div');div.className='flex gap-3';
+    const av=document.createElement('div');av.className='w-8 h-8 rounded-full bg-on-tertiary-container/30 flex items-center justify-center flex-shrink-0 text-sm';av.textContent=role==='user'?'👤':'🧬';
+    const bub=document.createElement('div');bub.className='msg-bubble text-sm text-on-surface-variant/80';bub.innerHTML=html;
+    div.appendChild(av);div.appendChild(bub);messagesEl.appendChild(div);messagesEl.scrollTop=messagesEl.scrollHeight;
+  }
+
+  function showLoading(){const id='load-'+Date.now();messagesEl.innerHTML+='<div class="flex gap-3" id="'+id+'"><div class="w-8 h-8 rounded-full bg-on-tertiary-container/30 flex items-center justify-center flex-shrink-0 text-sm">🧬</div><div class="msg-bubble"><div class="loading-dots"><span></span><span></span><span></span></div></div></div>';messagesEl.scrollTop=messagesEl.scrollHeight;return id;}
+  function removeLoading(id){const el=document.getElementById(id);if(el)el.remove();}
+  function setLoading(v){isLoading=v;sendBtn.disabled=v;sendBtn.textContent=v?'Analyzing...':'Send';userInput.disabled=v;}
+
+  function formatContent(t){
+    if(!t)return'';
+    return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/```(\w*)\n([\s\S]*?)```/g,'<pre><code>$2</code></pre>')
+      .replace(/`([^`]+)`/g,'<code>$1</code>')
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/!\[(.*?)\]\((https?:\/\/[^\s)]+)\)/g,'<br><img src="$2" loading="lazy"><br>')
+      .replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank">$1</a>')
+      .replace(/\n/g,'<br>');
+  }
+
+  async function checkHealth(){
+    try{const r=await fetch(AGENT_API+'/api/health');const d=await r.json();document.getElementById('statusDot').style.background=d.status==='healthy'?'#48bb78':'#ecc94b';document.getElementById('statusText').textContent=d.status==='healthy'?'Connected':'Degraded';}
+    catch{document.getElementById('statusDot').style.background='#f56565';document.getElementById('statusText').textContent='Offline';}
+  }
+  checkHealth();setInterval(checkHealth,30000);
+</script>
+</body></html>
