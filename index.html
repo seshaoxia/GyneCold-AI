@@ -162,9 +162,27 @@
 </div>
 </div>
 <div class="col-span-1 lg:col-span-5 hidden lg:flex justify-end relative h-[500px]">
-<div class="w-full h-full glass-panel rounded-2xl flex items-center justify-center relative overflow-hidden group">
+<div class="w-full h-full glass-panel rounded-2xl flex items-center justify-center relative overflow-hidden group cursor-pointer" id="dropZone">
 <div class="absolute inset-0 bg-gradient-to-tr from-surface/50 to-transparent z-10 pointer-events-none"></div>
 <canvas id="omics-canvas" class="w-full h-full absolute inset-0"></canvas>
+<!-- Drop overlay -->
+<div class="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none transition-all duration-500" id="dropOverlay">
+  <div class="w-16 h-16 rounded-2xl border-2 border-dashed border-primary-container/40 flex items-center justify-center mb-4 group-hover:border-primary-container group-hover:shadow-[0_0_30px_rgba(255,179,71,0.15)] transition-all duration-500">
+    <span class="material-symbols-outlined text-3xl text-primary-container/60 group-hover:text-primary-container transition-colors duration-500">cloud_upload</span>
+  </div>
+  <p class="text-sm text-on-surface-variant/50 group-hover:text-on-surface-variant/80 text-center px-8 transition-colors duration-500 font-light leading-relaxed">
+    Drop your Omics Data here<br/>
+    <span class="text-xs text-on-surface-variant/30 group-hover:text-on-surface-variant/50">to Initialize AI Analysis</span>
+  </p>
+  <p class="text-[10px] text-on-surface-variant/20 mt-3 group-hover:text-on-surface-variant/30 transition-colors">拖拽多组学数据至此开启AI分析</p>
+</div>
+<!-- Drag active state -->
+<div class="absolute inset-0 z-20 flex flex-col items-center justify-center opacity-0 transition-all duration-300 scale-95" id="dropActive">
+  <div class="w-20 h-20 rounded-2xl bg-primary-container/10 border-2 border-primary-container flex items-center justify-center mb-4 shadow-[0_0_40px_rgba(255,179,71,0.2)]">
+    <span class="material-symbols-outlined text-4xl text-primary-container">rocket_launch</span>
+  </div>
+  <p class="text-sm text-primary-container font-medium">Release to Start Analysis</p>
+</div>
 </div>
 </div>
 </div>
@@ -273,6 +291,60 @@
                 interactionLayer.appendChild(pulse);
                 setTimeout(() => pulse.remove(), 1500);
             });
+
+            // ─── Drag & Drop Zone ──────────────────────────────
+            const dropZone = document.getElementById('dropZone');
+            const dropOverlay = document.getElementById('dropOverlay');
+            const dropActive = document.getElementById('dropActive');
+
+            if (dropZone) {
+                // Click to navigate
+                dropZone.addEventListener('click', (e) => {
+                    window.location.href = 'chat.html';
+                });
+
+                // Drag events
+                ['dragenter', 'dragover'].forEach(evt => {
+                    dropZone.addEventListener(evt, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        dropOverlay.style.opacity = '0';
+                        dropOverlay.style.transform = 'scale(0.95)';
+                        dropActive.style.opacity = '1';
+                        dropActive.style.transform = 'scale(1)';
+                        dropZone.style.borderColor = '#FFB347';
+                        dropZone.style.boxShadow = '0 0 40px rgba(255,179,71,0.15)';
+                    });
+                });
+
+                ['dragleave', 'drop'].forEach(evt => {
+                    dropZone.addEventListener(evt, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        dropOverlay.style.opacity = '1';
+                        dropOverlay.style.transform = 'scale(1)';
+                        dropActive.style.opacity = '0';
+                        dropActive.style.transform = 'scale(0.95)';
+                        dropZone.style.borderColor = '';
+                        dropZone.style.boxShadow = '';
+                    });
+                });
+
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    // Navigate to chat page with file info
+                    const files = Array.from(e.dataTransfer.files);
+                    if (files.length > 0) {
+                        // Store file names in sessionStorage for the chat page to pick up
+                        sessionStorage.setItem('droppedFiles', JSON.stringify(files.map(f => ({
+                            name: f.name,
+                            size: f.size,
+                            type: f.type
+                        }))));
+                    }
+                    window.location.href = 'chat.html';
+                });
+            }
         });
     </script>
 
