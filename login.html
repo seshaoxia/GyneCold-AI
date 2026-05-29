@@ -1,139 +1,134 @@
-     1|<!DOCTYPE html>
-     2|<html class="dark" lang="en"><head>
-     3|<meta charset="utf-8"/>
-     4|<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-     5|<title>Sign In · GyneCold AI</title>
-     6|<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-     7|<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-     8|<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
-     9|<script>
-    10|  tailwind.config = {
-    11|    darkMode: "class",
-    12|    theme: { extend: {
-    13|      colors: { "primary-container": "#ffb347","primary-fixed-dim": "#ffb95a","on-primary-container": "#704700",
-    14|        "background": "#131314","surface": "#131314","on-surface": "#e5e2e3","on-surface-variant": "#d6c3b0",
-    15|        "tertiary-fixed-dim": "#cfbdfe","error": "#ffb4ab" }
-    16|    }}
-    17|  }
-    18|</script>
-    19|<style>
-    20|  body { background-color: #0A0A0B; color: #e5e2e3; min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; }
-    21|  .ambient-glow { position: fixed; border-radius: 50%; filter: blur(200px); z-index: -1; opacity: 0.3; pointer-events: none; }
-    22|  .glow-amber { background: #FFB347; width: 40vw; height: 40vh; top: -10vh; left: -5vw; }
-    23|  .glow-coral { background: #FF7F50; width: 30vw; height: 30vh; bottom: -10vh; right: -5vw; }
-    24|  .glass-panel { background: rgba(255,255,255,0.03); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.05); border-top: 1px solid rgba(255,221,182,0.2); }
-    25|  input { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 16px; color: #e5e2e3; font-size: 14px; outline: none; width: 100%; }
-    26|  input:focus { border-color: #FFB347; }
-    27|  input::placeholder { color: #666; }
-    28|  .auth-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #ef4444; display: none; }
-    29|</style>
-    30|</head>
-    31|<body>
-    32|<div class="ambient-glow glow-amber"></div>
-    33|<div class="ambient-glow glow-coral"></div>
-    34|<div class="w-full max-w-md px-6 z-10">
-    35|  <div class="glass-panel rounded-2xl p-10">
-    36|    <div class="text-center mb-8">
-    37|      <a href="index.html" class="text-2xl font-bold tracking-tight text-primary">GyneCold AI</a>
-    38|      <div class="text-sm text-on-surface-variant/60 mt-1">中医证候多组学联合分析智能体</div>
-    39|    </div>
-    40|    <div class="text-center mb-6">
-    41|      <h1 class="text-xl font-semibold text-on-surface" id="authTitle">Sign In</h1>
-    42|      <p class="text-sm text-on-surface-variant/60 mt-1" id="authSub">
-    43|        New user? <a href="#" id="toggleAuth" class="text-primary-container hover:underline">Create account</a>
-    44|      </p>
-    45|    </div>
-    46|    <div class="auth-error" id="authError"></div>
-    47|    <form id="authForm" onsubmit="return handleAuth(event)">
-    48|      <div class="space-y-4 mt-6">
-    49|        <div id="nameGroup" style="display:none;">
-    50|          <label class="text-xs text-on-surface-variant/60 block mb-1">Name</label>
-    51|          <input type="text" id="regName" placeholder="Your name">
-    52|        </div>
-    53|        <div>
-    54|          <label class="text-xs text-on-surface-variant/60 block mb-1">Username</label>
-    55|          <input type="text" id="username" placeholder="Enter username" required>
-    56|        </div>
-    57|        <div>
-    58|          <label class="text-xs text-on-surface-variant/60 block mb-1">Password</label>
-    59|          <input type="password" id="password" placeholder="Enter password" required>
-    60|        </div>
-    61|        <div id="password2Group" style="display:none;">
-    62|          <label class="text-xs text-on-surface-variant/60 block mb-1">Confirm Password</label>
-    63|          <input type="password" id="password2" placeholder="Re-enter password" required>
-    64|        </div>
-    65|        <div id="apiKeyGroup" style="display:none;">
-    66|          <label class="text-xs text-on-surface-variant/60 block mb-1">API Key
-    67|            <span class="text-error">*</span>
-    68|            <span class="font-normal opacity-60"> (<a href="https://platform.deepseek.com/api_keys" target="_blank" class="text-primary-container">DeepSeek</a>)</span>
-    69|          </label>
-    70|          <input type="password" id="apiKey" placeholder="sk-... required for registration" required>
-    71|          <div class="text-xs text-on-surface-variant/30 mt-1">Required for registration. Save it carefully.</div>
-    72|        </div>
-    73|      </div>
-    74|      <button type="submit" class="w-full mt-6 bg-gradient-to-r from-primary-container to-primary-fixed-dim text-on-primary-container py-3 rounded-full font-medium hover:shadow-[0_0_20px_rgba(255,179,71,0.3)] transition-all" id="authBtn">Sign In</button>
-    75|    </form>
-    76|    <div class="text-center mt-4">
-    77|      <a href="https://platform.deepseek.com/api_keys" target="_blank" class="text-xs text-on-surface-variant/40 hover:text-primary-container">No API Key? Get one from DeepSeek →</a>
-    78|    </div>
-    79|  </div>
-    80|  <div class="text-center mt-4">
-    81|    <a href="index.html" class="text-xs text-on-surface-variant/30 hover:text-primary-container">← Back to Home</a>
-    82|  </div>
-    83|</div>
-    84|
-    85|<script>
-    86|  const redirectTo = new URLSearchParams(window.location.search).get('redirect') || 'chat.html';
-    87|  const API_BASE = 'http://192.168.2.145:5001';
-    88|  let isLogin = true;
-    89|
-    90|  document.getElementById('toggleAuth').addEventListener('click', (e) => {
-    91|    e.preventDefault();
-    92|    isLogin = !isLogin;
-    93|    document.getElementById('authTitle').textContent = isLogin ? 'Sign In' : 'Create Account';
-    94|    document.getElementById('authSub').innerHTML = isLogin
-    95|      ? 'New user? <a href="#" id="toggleAuth" class="text-primary-container hover:underline">Create account</a>'
-    96|      : 'Already have an account? <a href="#" id="toggleAuth" class="text-primary-container hover:underline">Sign In</a>';
-    97|    document.getElementById('nameGroup').style.display = isLogin ? 'none' : 'block';
-    98|    document.getElementById('password2Group').style.display = isLogin ? 'none' : 'block';
-    99|    document.getElementById('apiKeyGroup').style.display = isLogin ? 'none' : 'block';
-   100|    document.getElementById('apiKey').required = !isLogin;
-   101|    document.getElementById('password2').required = !isLogin;
-   102|    document.getElementById('authBtn').textContent = isLogin ? 'Sign In' : 'Create Account';
-   103|    document.getElementById('authError').style.display = 'none';
-   104|    document.getElementById('toggleAuth').addEventListener('click', arguments.callee);
-   105|  });
-   106|
-   107|  function showError(msg) { const e = document.getElementById('authError'); e.textContent = msg; e.style.display = 'block'; }
-   108|
-   109|  async function handleAuth(e) {
-   110|    e.preventDefault();
-   111|    const username = document.getElementById('username').value.trim();
-   112|    const password = document.getElementById('password').value.trim();
-   113|    const password2 = document.getElementById('password2').value.trim();
-   114|    const name = document.getElementById('regName').value.trim() || username;
-   115|    const apiKey = document.getElementById('apiKey').value.trim();
-   116|
-   117|    if (!username || !password) { showError('Username and password are required.'); return false; }
-   118|    if (!isLogin && !apiKey) { showError('API Key is required for registration.'); return false; }
-   119|    if (!isLogin && password !== password2) { showError('Passwords do not match.'); return false; }
-   120|
-   121|    const btn = document.getElementById('authBtn');
-   122|    btn.disabled = true; btn.textContent = isLogin ? 'Signing in...' : 'Creating...';
-   123|
-   124|    try {
-   125|      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-   126|      const body = isLogin ? { username, password } : { username, password, name, api_key: apiKey };
-   127|      const resp = await fetch(API_BASE + endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-   128|      const data = await resp.json();
-   129|      if (!resp.ok) { showError(data.error || 'Operation failed'); return false; }
-   130|      if (isLogin) { localStorage.setItem('gynecold_user', JSON.stringify(data.user)); }
-   131|      else { localStorage.setItem('gynecold_user', JSON.stringify({ username, name, api_key: apiKey })); }
-   132|      window.location.href = redirectTo;
-   133|    } catch { showError('Cannot connect to server. Please contact administrator.'); }
-   134|    finally { btn.disabled = false; btn.textContent = isLogin ? 'Sign In' : 'Create Account'; }
-   135|    return false;
-   136|  }
-   137|</script>
-   138|</body></html>
-   139|
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sign In · GyneCold AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: { extend: {
+      colors: { "primary-container": "#ffb347","primary-fixed-dim": "#ffb95a","on-primary-container": "#704700",
+        "background": "#131314","surface": "#131314","on-surface": "#e5e2e3","on-surface-variant": "#d6c3b0",
+        "tertiary-fixed-dim": "#cfbdfe","error": "#ffb4ab" }
+    }}
+  }
+</script>
+<style>
+  body { background-color: #0A0A0B; color: #e5e2e3; min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; }
+  .ambient-glow { position: fixed; border-radius: 50%; filter: blur(200px); z-index: -1; opacity: 0.3; pointer-events: none; }
+  .glow-amber { background: #FFB347; width: 40vw; height: 40vh; top: -10vh; left: -5vw; }
+  .glow-coral { background: #FF7F50; width: 30vw; height: 30vh; bottom: -10vh; right: -5vw; }
+  .glass-panel { background: rgba(255,255,255,0.03); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.05); border-top: 1px solid rgba(255,221,182,0.2); }
+  input { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 16px; color: #e5e2e3; font-size: 14px; outline: none; width: 100%; }
+  input:focus { border-color: #FFB347; }
+  input::placeholder { color: #666; }
+  .auth-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #ef4444; display: none; }
+</style>
+</head>
+<body>
+<div class="ambient-glow glow-amber"></div>
+<div class="ambient-glow glow-coral"></div>
+<div class="w-full max-w-md px-6 z-10">
+  <div class="glass-panel rounded-2xl p-10">
+    <div class="text-center mb-8">
+      <a href="index.html" class="text-2xl font-bold tracking-tight text-primary">GyneCold AI</a>
+      <div class="text-sm text-on-surface-variant/60 mt-1">中医证候多组学联合分析智能体</div>
+    </div>
+    <div class="text-center mb-6">
+      <h1 class="text-xl font-semibold text-on-surface" id="authTitle">Sign In</h1>
+      <p class="text-sm text-on-surface-variant/60 mt-1" id="authSub">
+        New user? <a href="#" id="toggleAuth" class="text-primary-container hover:underline">Create account</a>
+      </p>
+    </div>
+    <div class="auth-error" id="authError"></div>
+    <form id="authForm" onsubmit="return handleAuth(event)">
+      <div class="space-y-4 mt-6">
+        <div id="nameGroup" style="display:none;">
+          <label class="text-xs text-on-surface-variant/60 block mb-1">Name</label>
+          <input type="text" id="regName" placeholder="Your name">
+        </div>
+        <div>
+          <label class="text-xs text-on-surface-variant/60 block mb-1">Username</label>
+          <input type="text" id="username" placeholder="Enter username" required>
+        </div>
+        <div>
+          <label class="text-xs text-on-surface-variant/60 block mb-1">Password</label>
+          <input type="password" id="password" placeholder="Enter password" required>
+        </div>
+        <div id="password2Group" style="display:none;">
+          <label class="text-xs text-on-surface-variant/60 block mb-1">Confirm Password</label>
+          <input type="password" id="password2" placeholder="Re-enter password" required>
+        </div>
+        <div id="apiKeyGroup" style="display:none;">
+          <label class="text-xs text-on-surface-variant/60 block mb-1">API Key <span class="text-error">*</span>
+            <span class="font-normal opacity-60"> (<a href="https://platform.deepseek.com/api_keys" target="_blank" class="text-primary-container">DeepSeek</a>)</span>
+          </label>
+          <input type="password" id="apiKey" placeholder="sk-... required for registration" required>
+          <div class="text-xs text-on-surface-variant/30 mt-1">Required for registration. Save it carefully.</div>
+        </div>
+      </div>
+      <button type="submit" class="w-full mt-6 bg-gradient-to-r from-primary-container to-primary-fixed-dim text-on-primary-container py-3 rounded-full font-medium hover:shadow-[0_0_20px_rgba(255,179,71,0.3)] transition-all" id="authBtn">Sign In</button>
+    </form>
+    <div class="text-center mt-4">
+      <a href="https://platform.deepseek.com/api_keys" target="_blank" class="text-xs text-on-surface-variant/40 hover:text-primary-container">No API Key? Get one from DeepSeek →</a>
+    </div>
+  </div>
+  <div class="text-center mt-4">
+    <a href="index.html" class="text-xs text-on-surface-variant/30 hover:text-primary-container">← Back to Home</a>
+  </div>
+</div>
+
+<script>
+  const redirectTo = new URLSearchParams(window.location.search).get('redirect') || 'chat.html';
+  const API_BASE = 'http://192.168.2.145:5001';
+  let isLogin = true;
+
+  document.getElementById('toggleAuth').addEventListener('click', (e) => {
+    e.preventDefault();
+    isLogin = !isLogin;
+    document.getElementById('authTitle').textContent = isLogin ? 'Sign In' : 'Create Account';
+    document.getElementById('authSub').innerHTML = isLogin
+      ? 'New user? <a href="#" id="toggleAuth" class="text-primary-container hover:underline">Create account</a>'
+      : 'Already have an account? <a href="#" id="toggleAuth" class="text-primary-container hover:underline">Sign In</a>';
+    document.getElementById('nameGroup').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('password2Group').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('apiKeyGroup').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('apiKey').required = !isLogin;
+    document.getElementById('password2').required = !isLogin;
+    document.getElementById('authBtn').textContent = isLogin ? 'Sign In' : 'Create Account';
+    document.getElementById('authError').style.display = 'none';
+    document.getElementById('toggleAuth').addEventListener('click', arguments.callee);
+  });
+
+  function showError(msg) { const e = document.getElementById('authError'); e.textContent = msg; e.style.display = 'block'; }
+
+  async function handleAuth(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const password2 = document.getElementById('password2').value.trim();
+    const name = document.getElementById('regName').value.trim() || username;
+    const apiKey = document.getElementById('apiKey').value.trim();
+    if (!username || !password) { showError('Username and password are required.'); return false; }
+    if (!isLogin && !apiKey) { showError('API Key is required for registration.'); return false; }
+    if (!isLogin && password !== password2) { showError('Passwords do not match.'); return false; }
+    const btn = document.getElementById('authBtn');
+    btn.disabled = true; btn.textContent = isLogin ? 'Signing in...' : 'Creating...';
+    try {
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const body = isLogin ? { username, password } : { username, password, name, api_key: apiKey };
+      const resp = await fetch(API_BASE + endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const data = await resp.json();
+      if (!resp.ok) { showError(data.error || 'Operation failed'); return false; }
+      if (isLogin) { localStorage.setItem('gynecold_user', JSON.stringify(data.user)); }
+      else { localStorage.setItem('gynecold_user', JSON.stringify({ username, name, api_key: apiKey })); }
+      window.location.href = redirectTo;
+    } catch { showError('Cannot connect to server.'); }
+    finally { btn.disabled = false; btn.textContent = isLogin ? 'Sign In' : 'Create Account'; }
+    return false;
+  }
+</script>
+</body></html>

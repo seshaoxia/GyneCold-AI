@@ -1,375 +1,282 @@
-     1|<!DOCTYPE html>
-     2|
-     3|<html class="dark" lang="en"><head>
-     4|<meta charset="utf-8"/>
-     5|<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-     6|<title>GyneCold AI — Multi-Omics Integrative Analysis for TCM Syndromes</title>
-     7|<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-     8|<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-     9|<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
-    10|<script id="tailwind-config">
-    11|        tailwind.config = {
-    12|            darkMode: "class",
-    13|            theme: {
-    14|                extend: {
-    15|                    "colors": {
-    16|                        "on-tertiary-container": "#56467f",
-    17|                        "tertiary-fixed-dim": "#cfbdfe",
-    18|                        "secondary-fixed-dim": "#ffb59c",
-    19|                        "on-primary-fixed": "#2a1800",
-    20|                        "on-primary": "#462a00",
-    21|                        "inverse-primary": "#845400",
-    22|                        "on-secondary-container": "#ffaa8d",
-    23|                        "surface-variant": "#353436",
-    24|                        "on-secondary-fixed-variant": "#822800",
-    25|                        "primary-fixed": "#ffddb6",
-    26|                        "tertiary-container": "#cbb8f9",
-    27|                        "surface-container": "#201f20",
-    28|                        "on-primary-container": "#704700",
-    29|                        "background": "#131314",
-    30|                        "surface": "#131314",
-    31|                        "surface-container-highest": "#353436",
-    32|                        "on-background": "#e5e2e3",
-    33|                        "secondary-fixed": "#ffdbcf",
-    34|                        "on-tertiary-fixed-variant": "#4d3d75",
-    35|                        "error": "#ffb4ab",
-    36|                        "surface-dim": "#131314",
-    37|                        "on-secondary": "#5c1a00",
-    38|                        "outline": "#9f8e7c",
-    39|                        "primary-container": "#ffb347",
-    40|                        "on-tertiary-fixed": "#201047",
-    41|                        "primary-fixed-dim": "#ffb95a",
-    42|                        "tertiary-fixed": "#e9ddff",
-    43|                        "secondary": "#ffb59c",
-    44|                        "surface-container-low": "#1c1b1c",
-    45|                        "on-surface": "#e5e2e3",
-    46|                        "inverse-surface": "#e5e2e3",
-    47|                        "surface-tint": "#ffb95a",
-    48|                        "on-error": "#690005",
-    49|                        "error-container": "#93000a",
-    50|                        "surface-container-lowest": "#0e0e0f",
-    51|                        "surface-bright": "#3a393a",
-    52|                        "surface-container-high": "#2a2a2b",
-    53|                        "on-secondary-fixed": "#380c00",
-    54|                        "inverse-on-surface": "#313031",
-    55|                        "tertiary": "#e5d8ff",
-    56|                        "outline-variant": "#524535",
-    57|                        "secondary-container": "#8e2c01",
-    58|                        "on-tertiary": "#36275d",
-    59|                        "on-error-container": "#ffdad6",
-    60|                        "on-primary-fixed-variant": "#643f00",
-    61|                        "primary": "#ffd7a9",
-    62|                        "on-surface-variant": "#d6c3b0"
-    63|                    },
-    64|                    "borderRadius": {
-    65|                        "DEFAULT": "0.25rem",
-    66|                        "lg": "0.5rem",
-    67|                        "xl": "0.75rem",
-    68|                        "full": "9999px"
-    69|                    },
-    70|                    "spacing": {
-    71|                        "margin-desktop": "64px",
-    72|                        "gutter": "24px",
-    73|                        "margin-mobile": "16px",
-    74|                        "container-max": "1440px",
-    75|                        "unit": "8px"
-    76|                    },
-    77|                    "fontFamily": {
-    78|                        "data-label": ["JetBrains Mono"],
-    79|                        "code-sm": ["JetBrains Mono"],
-    80|                        "headline-lg-mobile": ["Inter"],
-    81|                        "body-md": ["Inter"],
-    82|                        "headline-lg": ["Inter"],
-    83|                        "display-lg": ["Inter"]
-    84|                    },
-    85|                    "fontSize": {
-    86|                        "data-label": ["14px", { "lineHeight": "1.5", "letterSpacing": "0.05em", "fontWeight": "500" }],
-    87|                        "code-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }],
-    88|                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
-    89|                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
-    90|                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "500" }],
-    91|                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600" }]
-    92|                    }
-    93|                }
-    94|            }
-    95|        }
-    96|    </script>
-    97|<style>
-    98|        body {
-    99|            background-color: #0A0A0B;
-   100|            color: #e5e2e3;
-   101|            overflow-x: hidden;
-   102|            position: relative;
-   103|        }
-   104|
-   105|        .ambient-glow {
-   106|            position: fixed;
-   107|            border-radius: 50%;
-   108|            filter: blur(200px);
-   109|            z-index: -1;
-   110|            opacity: 0.4;
-   111|            animation: drift 20s infinite alternate ease-in-out;
-   112|            pointer-events: none;
-   113|        }
-   114|
-   115|        .glow-amber { background-color: #FFB347; width: 60vw; height: 60vh; top: -10vh; left: -10vw; }
-   116|        .glow-coral { background-color: #FF7F50; width: 50vw; height: 50vh; bottom: -10vh; right: -5vw; animation-delay: -5s; }
-   117|        .glow-violet { background-color: #8A2BE2; width: 40vw; height: 40vh; top: 40vh; left: 30vw; animation-delay: -10s; opacity: 0.2; }
-   118|
-   119|        @keyframes drift {
-   120|            0% { transform: translate(0, 0) scale(1); }
-   121|            50% { transform: translate(3%, 5%) scale(1.05); }
-   122|            100% { transform: translate(-2%, -3%) scale(0.95); }
-   123|        }
-   124|
-   125|        .glass-panel {
-   126|            background: rgba(255, 255, 255, 0.03);
-   127|            backdrop-filter: blur(30px);
-   128|            -webkit-backdrop-filter: blur(30px);
-   129|            border: 1px solid rgba(255, 255, 255, 0.05);
-   130|            border-top: 1px solid rgba(255, 221, 182, 0.2);
-   131|            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-   132|        }
-   133|
-   134|        .particle-overlay {
-   135|            position: fixed;
-   136|            top: 0;
-   137|            left: 0;
-   138|            width: 100vw;
-   139|            height: 100vh;
-   140|            background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA47eQIltwZWqNVoP6u5S1w9KYpmD8CiJEbJYPn1HgCWEV6RYCDoh8wFmrlOTJufBmvcU4ELQcOYxYTMRL63CKjDEPuoxWfC9WLsaLXRk-HteJ2RK5ksOdshwEVZiSYxFjD3UCskOAeCnUxj86oHGoum3ikBM94EJN6-dlkifGBGZWGIuvRQ5ZT6ZDmsKgxbYTc5qhq_qs9bX8JIAGbnAOMtEDC3mfHdPomMqaZYpPR4BVrUk66CRJCgmv3drjnkz_bY0_2wVLcHQZr');
-   141|            background-size: cover;
-   142|            background-position: center;
-   143|            opacity: 0.15;
-   144|            mix-blend-mode: screen;
-   145|            z-index: -1;
-   146|            pointer-events: none;
-   147|        }
-   148|
-   149|        .interactive-pulse {
-   150|            position: absolute;
-   151|            border-radius: 50%;
-   152|            background: radial-gradient(circle, rgba(255,179,71,0.6) 0%, rgba(255,179,71,0) 70%);
-   153|            transform: translate(-50%, -50%);
-   154|            pointer-events: none;
-   155|            z-index: 0;
-   156|            opacity: 0;
-   157|        }
-   158|
-   159|        @keyframes ripple {
-   160|            0% { width: 0; height: 0; opacity: 0.8; }
-   161|            100% { width: 500px; height: 500px; opacity: 0; }
-   162|        }
-   163|        .pulse-anim { animation: ripple 1.5s ease-out; }
-   164|
-   165|        .toggle-checkbox {
-   166|            position: absolute;
-   167|            width: 100%;
-   168|            height: 100%;
-   169|            opacity: 0;
-   170|            cursor: pointer;
-   171|            z-index: 10;
-   172|            margin: 0;
-   173|        }
-   174|        .toggle-label {
-   175|            position: relative;
-   176|        }
-   177|        .toggle-label::after {
-   178|            content: '';
-   179|            position: absolute;
-   180|            width: 20px;
-   181|            height: 20px;
-   182|            background: #d6c3b0;
-   183|            border-radius: 50%;
-   184|            top: 3px;
-   185|            left: 3px;
-   186|            transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1),
-   187|                        background-color 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-   188|        }
-   189|        .toggle-checkbox:checked + .toggle-label {
-   190|            background-color: rgba(255, 179, 71, 0.2);
-   191|            border-color: #FFB347;
-   192|        }
-   193|        .toggle-checkbox:checked + .toggle-label::after {
-   194|            transform: translateX(24px);
-   195|            background-color: #FFB347;
-   196|        }
-   197|
-   198|        /* Scrollbar */
-   199|        ::-webkit-scrollbar { width: 4px; }
-   200|        ::-webkit-scrollbar-track { background: #0A0A0B; }
-   201|        ::-webkit-scrollbar-thumb { background: #FFB347; border-radius: 2px; }
-   202|    </style>
-   203|</head>
-   204|<body class="font-sans antialiased min-h-screen flex flex-col">
-   205|
-   206|<div class="ambient-glow glow-amber"></div>
-   207|<div class="ambient-glow glow-coral"></div>
-   208|<div class="ambient-glow glow-violet"></div>
-   209|<div class="particle-overlay"></div>
-   210|<div class="fixed inset-0 z-0 pointer-events-none overflow-hidden" id="interaction-layer"></div>
-   211|
-   212|<!-- Navbar -->
-   213|<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop py-4 bg-surface/10 backdrop-blur-xl border-b border-white/10 shadow-2xl transition-all duration-300">
-   214|<div class="flex items-center gap-2">
-   215|<span class="font-display-lg text-display-lg font-bold tracking-tight text-primary">GyneCold AI</span>
-   216|</div>
-   217|<div class="hidden md:flex items-center gap-8">
-   218|<a class="text-primary border-b-2 border-primary-container pb-1 font-body-md text-body-md" href="index.html">Platform</a>
-   219|<a class="text-on-surface-variant/70 hover:text-on-surface transition-all font-body-md text-body-md" href="chat.html">Analysis</a>
-   220|<a class="text-on-surface-variant/70 hover:text-on-surface transition-all font-body-md text-body-md" href="guide.html">Guide</a>
-   221|</div>
-   222|<div class="flex items-center gap-4">
-   223|<a href="login.html" class="bg-gradient-to-r from-primary-container to-primary-fixed-dim text-on-primary-container px-6 py-2 rounded-full font-body-md text-body-md font-medium hover:opacity-90 transition-opacity flex items-center gap-2">
-   224|                Sign In
-   225|            </a>
-   226|</div>
-   227|</nav>
-   228|
-   229|<!-- Hero -->
-   230|<main class="flex-grow z-10 relative pt-32 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full flex flex-col justify-center min-h-screen">
-   231|<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
-   232|<div class="col-span-1 lg:col-span-7 space-y-8">
-   233|<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-on-tertiary-container/20 border border-tertiary-fixed-dim/30">
-   234|<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
-   235|<span class="font-data-label text-data-label text-tertiary-fixed-dim">INTEGRATIVE OMICS v2.0</span>
-   236|</div>
-   237|<h1 class="font-display-lg text-[48px] md:text-[64px] font-bold text-on-surface leading-tight">
-   238|                GyneCold AI<br/>
-   239|<span class="text-on-surface-variant/60 text-[28px] md:text-[36px]">中医证候多组学联合分析智能体</span>
-   240|</h1>
-   241|<p class="font-body-md text-body-md text-on-surface-variant/80 max-w-2xl text-lg md:text-xl">
-   242|                An AI-powered integrative multi-omics platform for TCM syndrome research — transcriptomics, epigenomics, metabolomics, and microbiome data analysis with natural language interaction.
-   243|            </p>
-   244|<div class="flex flex-wrap items-center gap-6 pt-4">
-   245|<a href="chat.html" class="bg-gradient-to-r from-primary-container to-primary-fixed-dim text-on-primary-container px-8 py-4 rounded-full font-body-md text-body-md font-semibold hover:shadow-[0_0_20px_rgba(255,179,71,0.4)] transition-all duration-300">
-   246|                    Start Analysis →
-   247|                </a>
-   248|<a href="guide.html" class="text-on-surface-variant/70 hover:text-primary transition-colors font-body-md text-body-md px-8 py-4">
-   249|                    View Documentation
-   250|                </a>
-   251|</div>
-   252|</div>
-   253|<div class="col-span-1 lg:col-span-5 hidden lg:flex justify-end relative h-[500px]">
-   254|<div class="w-full h-full glass-panel rounded-2xl flex items-center justify-center relative overflow-hidden group">
-   255|<div class="absolute inset-0 bg-gradient-to-tr from-surface/50 to-transparent z-10"></div>
-   256|<div class="absolute inset-0 flex items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity duration-700">
-   257|<div class="w-64 h-64 border border-primary/20 rounded-full animate-[spin_20s_linear_infinite] absolute"></div>
-   258|<div class="w-48 h-48 border border-tertiary-fixed-dim/30 rounded-full animate-[spin_15s_linear_infinite_reverse] absolute"></div>
-   259|<span class="material-symbols-outlined text-6xl text-primary-container/80 z-20 font-light">hub</span>
-   260|</div>
-   261|</div>
-   262|</div>
-   263|</div>
-   264|
-   265|<!-- Stats Grid -->
-   266|<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-24 mb-24 z-10">
-   267|<a href="rna-seq.html" class="glass-panel rounded-xl p-8 flex flex-col hover:-translate-y-2 transition-transform duration-500 cursor-default group relative overflow-hidden">
-   268|<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-container/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-   269|<div class="flex items-center justify-between mb-6">
-   270|<span class="material-symbols-outlined text-primary-container text-3xl">monitoring</span>
-   271|<span class="font-code-sm text-code-sm text-on-surface-variant/40">ANALYSIS</span>
-   272|</div>
-   273|<div class="font-data-label text-[40px] text-on-surface font-light tracking-tight mb-2">RNA-seq</div>
-   274|<div class="font-body-md text-body-md text-on-surface-variant/80">Differential Expression · Limma · Visualization</div>
-   275|</a>
-   276|<a href="mr.html" class="glass-panel rounded-xl p-8 flex flex-col hover:-translate-y-2 transition-transform duration-500 cursor-default group relative overflow-hidden">
-   277|<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-tertiary-fixed-dim/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-   278|<div class="flex items-center justify-between mb-6">
-   279|<span class="material-symbols-outlined text-tertiary-fixed-dim text-3xl">biotech</span>
-   280|<span class="font-code-sm text-code-sm text-on-surface-variant/40">CAUSALITY</span>
-   281|</div>
-   282|<div class="font-data-label text-[40px] text-on-surface font-light tracking-tight mb-2">MR</div>
-   283|<div class="font-body-md text-body-md text-on-surface-variant/80">Mendelian Randomization · TwoSampleMR · Bidirectional</div>
-   284|</a>
-   285|<div class="glass-panel rounded-xl p-8 flex flex-col hover:-translate-y-2 transition-transform duration-500 cursor-default group relative overflow-hidden">
-   286|<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary-fixed-dim/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-   287|<div class="flex items-center justify-between mb-6">
-   288|<span class="material-symbols-outlined text-secondary-fixed-dim text-3xl">database</span>
-   289|<span class="font-code-sm text-code-sm text-on-surface-variant/40">SOURCE</span>
-   290|</div>
-   291|<div class="font-data-label text-[24px] text-on-surface font-light tracking-tight mb-2">Multi-Omics</div>
-   292|<div class="font-body-md text-body-md text-on-surface-variant/80">GWAS · eQTL · DNA Methylation · Microbiome</div>
-   293|</div>
-   294|</div>
-   295|
-   296|<!-- Database Section -->
-   297|<div class="glass-panel rounded-xl p-10 mb-32 z-10">
-   298|<div class="text-center mb-10">
-   299|<h2 class="font-headline-lg text-headline-lg text-on-surface text-2xl mb-3">Supported Data Sources</h2>
-   300|<p class="font-body-md text-body-md text-on-surface-variant/60">Integrating public and private omics databases for comprehensive analysis</p>
-   301|</div>
-   302|<div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-   303|<div class="text-center p-4">
-   304|<span class="material-symbols-outlined text-primary-container text-4xl mb-3">dna</span>
-   305|<h3 class="font-data-label text-data-label text-on-surface mb-1">GWAS Catalog</h3>
-   306|<p class="font-code-sm text-code-sm text-on-surface-variant/50">Genome-wide association summary</p>
-   307|</div>
-   308|<div class="text-center p-4">
-   309|<span class="material-symbols-outlined text-tertiary-fixed-dim text-4xl mb-3">neurology</span>
-   310|<h3 class="font-data-label text-data-label text-on-surface mb-1">GTEx eQTL</h3>
-   311|<p class="font-code-sm text-code-sm text-on-surface-variant/50">Expression quantitative trait loci</p>
-   312|</div>
-   313|<div class="text-center p-4">
-   314|<span class="material-symbols-outlined text-secondary-fixed-dim text-4xl mb-3">lab_research</span>
-   315|<h3 class="font-data-label text-data-label text-on-surface mb-1">ENCODE / Roadmap</h3>
-   316|<p class="font-code-sm text-code-sm text-on-surface-variant/50">Epigenomic annotations & peaks</p>
-   317|</div>
-   318|<div class="text-center p-4">
-   319|<span class="material-symbols-outlined text-primary-container text-4xl mb-3">stethoscope</span>
-   320|<h3 class="font-data-label text-data-label text-on-surface mb-1">FinnGen / UK Biobank</h3>
-   321|<p class="font-code-sm text-code-sm text-on-surface-variant/50">Population-scale disease GWAS</p>
-   322|</div>
-   323|<div class="text-center p-4">
-   324|<span class="material-symbols-outlined text-tertiary-fixed-dim text-4xl mb-3">genetics</span>
-   325|<h3 class="font-data-label text-data-label text-on-surface mb-1">IEU OpenGWAS</h3>
-   326|<p class="font-code-sm text-code-sm text-on-surface-variant/50">50,000+ public GWAS datasets</p>
-   327|</div>
-   328|<div class="text-center p-4">
-   329|<span class="material-symbols-outlined text-secondary-fixed-dim text-4xl mb-3">humidity_high</span>
-   330|<h3 class="font-data-label text-data-label text-on-surface mb-1">Metabolomics GWAS</h3>
-   331|<p class="font-code-sm text-code-sm text-on-surface-variant/50">Metabolite-related genetic variants</p>
-   332|</div>
-   333|<div class="text-center p-4">
-   334|<span class="material-symbols-outlined text-primary-container text-4xl mb-3">microbiology</span>
-   335|<h3 class="font-data-label text-data-label text-on-surface mb-1">MiBioGen</h3>
-   336|<p class="font-code-sm text-code-sm text-on-surface-variant/50">Gut microbiome GWAS consortium</p>
-   337|</div>
-   338|<div class="text-center p-4">
-   339|<span class="material-symbols-outlined text-tertiary-fixed-dim text-4xl mb-3">database</span>
-   340|<h3 class="font-data-label text-data-label text-on-surface mb-1">Local Upload</h3>
-   341|<p class="font-code-sm text-code-sm text-on-surface-variant/50">Custom GWAS / expression files</p>
-   342|</div>
-   343|</div>
-   344|</div>
-   345|</main>
-   346|
-   347|<!-- Footer -->
-   348|<footer class="w-full px-margin-desktop py-12 flex flex-col md:flex-row justify-between items-center bg-background/80 border-t border-outline-variant/20 z-10 relative">
-   349|<div class="flex flex-col md:flex-row items-center gap-6 mb-6 md:mb-0">
-   350|<span class="font-headline-lg text-headline-lg text-on-surface text-xl">GyneCold AI</span>
-   351|<span class="font-data-label text-data-label text-on-surface-variant">© 2025 GyneCold AI · Multi-Omics Research Platform</span>
-   352|</div>
-   353|<div class="flex gap-6">
-   354|<a class="font-data-label text-data-label text-on-surface-variant opacity-60 hover:text-primary transition-colors" href="guide.html">Guide</a>
-   355|<a class="font-data-label text-data-label text-on-surface-variant opacity-60 hover:text-primary transition-colors" href="login.html">Sign In</a>
-   356|<a class="font-data-label text-data-label text-on-surface-variant opacity-60 hover:text-primary transition-colors" href="mailto:xty16631790636@163.com">Feedback</a>
-   357|</div>
-   358|</footer>
-   359|
-   360|<script>
-   361|        document.addEventListener('DOMContentLoaded', () => {
-   362|            const interactionLayer = document.getElementById('interaction-layer');
-   363|            document.body.addEventListener('click', (e) => {
-   364|                if (e.target.closest('button, a, input, label')) return;
-   365|                const pulse = document.createElement('div');
-   366|                pulse.className = 'interactive-pulse pulse-anim';
-   367|                pulse.style.left = e.clientX + 'px';
-   368|                pulse.style.top = e.clientY + 'px';
-   369|                interactionLayer.appendChild(pulse);
-   370|                setTimeout(() => pulse.remove(), 1500);
-   371|            });
-   372|        });
-   373|    </script>
-   374|</body></html>
-   375|
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GyneCold AI — Multi-Omics Integrative Analysis for TCM Syndromes</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#56467f",
+                        "tertiary-fixed-dim": "#cfbdfe",
+                        "secondary-fixed-dim": "#ffb59c",
+                        "on-primary-fixed": "#2a1800",
+                        "on-primary": "#462a00",
+                        "inverse-primary": "#845400",
+                        "on-secondary-container": "#ffaa8d",
+                        "surface-variant": "#353436",
+                        "on-secondary-fixed-variant": "#822800",
+                        "primary-fixed": "#ffddb6",
+                        "tertiary-container": "#cbb8f9",
+                        "surface-container": "#201f20",
+                        "on-primary-container": "#704700",
+                        "background": "#131314",
+                        "surface": "#131314",
+                        "surface-container-highest": "#353436",
+                        "on-background": "#e5e2e3",
+                        "secondary-fixed": "#ffdbcf",
+                        "on-tertiary-fixed-variant": "#4d3d75",
+                        "error": "#ffb4ab",
+                        "surface-dim": "#131314",
+                        "on-secondary": "#5c1a00",
+                        "outline": "#9f8e7c",
+                        "primary-container": "#ffb347",
+                        "on-tertiary-fixed": "#201047",
+                        "primary-fixed-dim": "#ffb95a",
+                        "tertiary-fixed": "#e9ddff",
+                        "secondary": "#ffb59c",
+                        "surface-container-low": "#1c1b1c",
+                        "on-surface": "#e5e2e3",
+                        "inverse-surface": "#e5e2e3",
+                        "surface-tint": "#ffb95a",
+                        "on-error": "#690005",
+                        "error-container": "#93000a",
+                        "surface-container-lowest": "#0e0e0f",
+                        "surface-bright": "#3a393a",
+                        "surface-container-high": "#2a2a2b",
+                        "on-secondary-fixed": "#380c00",
+                        "inverse-on-surface": "#313031",
+                        "tertiary": "#e5d8ff",
+                        "outline-variant": "#524535",
+                        "secondary-container": "#8e2c01",
+                        "on-tertiary": "#36275d",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#643f00",
+                        "primary": "#ffd7a9",
+                        "on-surface-variant": "#d6c3b0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "container-max": "1440px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "data-label": ["JetBrains Mono"],
+                        "code-sm": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "data-label": ["14px", { "lineHeight": "1.5", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "code-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0B;
+            color: #e5e2e3;
+            overflow-x: hidden;
+            position: relative;
+        }
+        .ambient-glow { position: fixed; border-radius: 50%; filter: blur(200px); z-index: -1; opacity: 0.4; animation: drift 20s infinite alternate ease-in-out; pointer-events: none; }
+        .glow-amber { background-color: #FFB347; width: 60vw; height: 60vh; top: -10vh; left: -10vw; }
+        .glow-coral { background-color: #FF7F50; width: 50vw; height: 50vh; bottom: -10vh; right: -5vw; animation-delay: -5s; }
+        .glow-violet { background-color: #8A2BE2; width: 40vw; height: 40vh; top: 40vh; left: 30vw; animation-delay: -10s; opacity: 0.2; }
+        @keyframes drift { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(3%, 5%) scale(1.05); } 100% { transform: translate(-2%, -3%) scale(0.95); } }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 221, 182, 0.2); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        .particle-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA47eQIltwZWqNVoP6u5S1w9KYpmD8CiJEbJYPn1HgCWEV6RYCDoh8wFmrlOTJufBmvcU4ELQcOYxYTMRL63CKjDEPuoxWfC9WLsaLXRk-HteJ2RK5ksOdshwEVZiSYxFjD3UCskOAeCnUxj86oHGoum3ikBM94EJN6-dlkifGBGZWGIuvRQ5ZT6ZDmsKgxbYTc5qhq_qs9bX8JIAGbnAOMtEDC3mfHdPomMqaZYpPR4BVrUk66CRJCgmv3drjnkz_bY0_2wVLcHQZr'); background-size: cover; background-position: center; opacity: 0.15; mix-blend-mode: screen; z-index: -1; pointer-events: none; }
+        .interactive-pulse { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(255,179,71,0.6) 0%, rgba(255,179,71,0) 70%); transform: translate(-50%, -50%); pointer-events: none; z-index: 0; opacity: 0; }
+        @keyframes ripple { 0% { width: 0; height: 0; opacity: 0.8; } 100% { width: 500px; height: 500px; opacity: 0; } }
+        .pulse-anim { animation: ripple 1.5s ease-out; }
+        .toggle-checkbox { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; margin: 0; }
+        .toggle-label { position: relative; }
+        .toggle-label::after { content: ''; position: absolute; width: 20px; height: 20px; background: #d6c3b0; border-radius: 50%; top: 3px; left: 3px; transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), background-color 0.3s cubic-bezier(0.25, 0.1, 0.25, 1); }
+        .toggle-checkbox:checked + .toggle-label { background-color: rgba(255, 179, 71, 0.2); border-color: #FFB347; }
+        .toggle-checkbox:checked + .toggle-label::after { transform: translateX(24px); background-color: #FFB347; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0A0A0B; }
+        ::-webkit-scrollbar-thumb { background: #FFB347; border-radius: 2px; }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+<div class="ambient-glow glow-amber"></div>
+<div class="ambient-glow glow-coral"></div>
+<div class="ambient-glow glow-violet"></div>
+<div class="particle-overlay"></div>
+<div class="fixed inset-0 z-0 pointer-events-none overflow-hidden" id="interaction-layer"></div>
+
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop py-4 bg-surface/10 backdrop-blur-xl border-b border-white/10 shadow-2xl transition-all duration-300">
+<div class="flex items-center gap-2">
+<span class="font-display-lg text-display-lg font-bold tracking-tight text-primary">GyneCold AI</span>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-primary border-b-2 border-primary-container pb-1 font-body-md text-body-md" href="index.html">Platform</a>
+<a class="text-on-surface-variant/70 hover:text-on-surface transition-all font-body-md text-body-md" href="chat.html">Analysis</a>
+<a class="text-on-surface-variant/70 hover:text-on-surface transition-all font-body-md text-body-md" href="guide.html">Guide</a>
+</div>
+<div class="flex items-center gap-4">
+<a href="login.html" class="bg-gradient-to-r from-primary-container to-primary-fixed-dim text-on-primary-container px-6 py-2 rounded-full font-body-md text-body-md font-medium hover:opacity-90 transition-opacity flex items-center gap-2">Sign In</a>
+</div>
+</nav>
+
+<main class="flex-grow z-10 relative pt-32 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full flex flex-col justify-center min-h-screen">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
+<div class="col-span-1 lg:col-span-7 space-y-8">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-on-tertiary-container/20 border border-tertiary-fixed-dim/30">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span class="font-data-label text-data-label text-tertiary-fixed-dim">INTEGRATIVE OMICS v2.0</span>
+</div>
+<h1 class="font-display-lg text-[48px] md:text-[64px] font-bold text-on-surface leading-tight">
+                GyneCold AI<br/>
+<span class="text-on-surface-variant/60 text-[28px] md:text-[36px]">中医证候多组学联合分析智能体</span>
+</h1>
+<p class="font-body-md text-body-md text-on-surface-variant/80 max-w-2xl text-lg md:text-xl">
+                An AI-powered integrative multi-omics platform for TCM syndrome research — transcriptomics, epigenomics, metabolomics, and microbiome data analysis with natural language interaction.
+            </p>
+<div class="flex flex-wrap items-center gap-6 pt-4">
+<a href="chat.html" class="bg-gradient-to-r from-primary-container to-primary-fixed-dim text-on-primary-container px-8 py-4 rounded-full font-body-md text-body-md font-semibold hover:shadow-[0_0_20px_rgba(255,179,71,0.4)] transition-all duration-300">Start Analysis →</a>
+<a href="guide.html" class="text-on-surface-variant/70 hover:text-primary transition-colors font-body-md text-body-md px-8 py-4">View Documentation</a>
+</div>
+</div>
+<div class="col-span-1 lg:col-span-5 hidden lg:flex justify-end relative h-[500px]">
+<div class="w-full h-full glass-panel rounded-2xl flex items-center justify-center relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-tr from-surface/50 to-transparent z-10"></div>
+<div class="absolute inset-0 flex items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity duration-700">
+<div class="w-64 h-64 border border-primary/20 rounded-full animate-[spin_20s_linear_infinite] absolute"></div>
+<div class="w-48 h-48 border border-tertiary-fixed-dim/30 rounded-full animate-[spin_15s_linear_infinite_reverse] absolute"></div>
+<span class="material-symbols-outlined text-6xl text-primary-container/80 z-20 font-light">hub</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-24 mb-24 z-10">
+<a href="rna-seq.html" class="glass-panel rounded-xl p-8 flex flex-col hover:-translate-y-2 transition-transform duration-500 cursor-default group relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-container/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center justify-between mb-6">
+<span class="material-symbols-outlined text-primary-container text-3xl">monitoring</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant/40">ANALYSIS</span>
+</div>
+<div class="font-data-label text-[40px] text-on-surface font-light tracking-tight mb-2">RNA-seq</div>
+<div class="font-body-md text-body-md text-on-surface-variant/80">Differential Expression · Limma · Visualization</div>
+</a>
+<a href="mr.html" class="glass-panel rounded-xl p-8 flex flex-col hover:-translate-y-2 transition-transform duration-500 cursor-default group relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-tertiary-fixed-dim/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center justify-between mb-6">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-3xl">biotech</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant/40">CAUSALITY</span>
+</div>
+<div class="font-data-label text-[40px] text-on-surface font-light tracking-tight mb-2">MR</div>
+<div class="font-body-md text-body-md text-on-surface-variant/80">Mendelian Randomization · TwoSampleMR · Bidirectional</div>
+</a>
+<div class="glass-panel rounded-xl p-8 flex flex-col hover:-translate-y-2 transition-transform duration-500 cursor-default group relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary-fixed-dim/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center justify-between mb-6">
+<span class="material-symbols-outlined text-secondary-fixed-dim text-3xl">database</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant/40">SOURCE</span>
+</div>
+<div class="font-data-label text-[24px] text-on-surface font-light tracking-tight mb-2">Multi-Omics</div>
+<div class="font-body-md text-body-md text-on-surface-variant/80">GWAS · eQTL · DNA Methylation · Microbiome</div>
+</div>
+</div>
+
+<div class="glass-panel rounded-xl p-10 mb-32 z-10">
+<div class="text-center mb-10">
+<h2 class="font-headline-lg text-headline-lg text-on-surface text-2xl mb-3">Supported Data Sources</h2>
+<p class="font-body-md text-body-md text-on-surface-variant/60">Integrating public and private omics databases for comprehensive analysis</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+<div class="text-center p-4">
+<span class="material-symbols-outlined text-primary-container text-4xl mb-3">dna</span>
+<h3 class="font-data-label text-data-label text-on-surface mb-1">GWAS Catalog</h3>
+<p class="font-code-sm text-code-sm text-on-surface-variant/50">Genome-wide association summary</p>
+</div>
+<div class="text-center p-4">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-4xl mb-3">neurology</span>
+<h3 class="font-data-label text-data-label text-on-surface mb-1">GTEx eQTL</h3>
+<p class="font-code-sm text-code-sm text-on-surface-variant/50">Expression quantitative trait loci</p>
+</div>
+<div class="text-center p-4">
+<span class="material-symbols-outlined text-secondary-fixed-dim text-4xl mb-3">lab_research</span>
+<h3 class="font-data-label text-data-label text-on-surface mb-1">ENCODE / Roadmap</h3>
+<p class="font-code-sm text-code-sm text-on-surface-variant/50">Epigenomic annotations & peaks</p>
+</div>
+<div class="text-center p-4">
+<span class="material-symbols-outlined text-primary-container text-4xl mb-3">stethoscope</span>
+<h3 class="font-data-label text-data-label text-on-surface mb-1">FinnGen / UK Biobank</h3>
+<p class="font-code-sm text-code-sm text-on-surface-variant/50">Population-scale disease GWAS</p>
+</div>
+<div class="text-center p-4">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-4xl mb-3">genetics</span>
+<h3 class="font-data-label text-data-label text-on-surface mb-1">IEU OpenGWAS</h3>
+<p class="font-code-sm text-code-sm text-on-surface-variant/50">50,000+ public GWAS datasets</p>
+</div>
+<div class="text-center p-4">
+<span class="material-symbols-outlined text-secondary-fixed-dim text-4xl mb-3">humidity_high</span>
+<h3 class="font-data-label text-data-label text-on-surface mb-1">Metabolomics GWAS</h3>
+<p class="font-code-sm text-code-sm text-on-surface-variant/50">Metabolite-related genetic variants</p>
+</div>
+<div class="text-center p-4">
+<span class="material-symbols-outlined text-primary-container text-4xl mb-3">microbiology</span>
+<h3 class="font-data-label text-data-label text-on-surface mb-1">MiBioGen</h3>
+<p class="font-code-sm text-code-sm text-on-surface-variant/50">Gut microbiome GWAS consortium</p>
+</div>
+<div class="text-center p-4">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-4xl mb-3">database</span>
+<h3 class="font-data-label text-data-label text-on-surface mb-1">Local Upload</h3>
+<p class="font-code-sm text-code-sm text-on-surface-variant/50">Custom GWAS / expression files</p>
+</div>
+</div>
+</div>
+</main>
+
+<footer class="w-full px-margin-desktop py-12 flex flex-col md:flex-row justify-between items-center bg-background/80 border-t border-outline-variant/20 z-10 relative">
+<div class="flex flex-col md:flex-row items-center gap-6 mb-6 md:mb-0">
+<span class="font-headline-lg text-headline-lg text-on-surface text-xl">GyneCold AI</span>
+<span class="font-data-label text-data-label text-on-surface-variant">© 2025 GyneCold AI · Multi-Omics Research Platform</span>
+</div>
+<div class="flex gap-6">
+<a class="font-data-label text-data-label text-on-surface-variant opacity-60 hover:text-primary transition-colors" href="guide.html">Guide</a>
+<a class="font-data-label text-data-label text-on-surface-variant opacity-60 hover:text-primary transition-colors" href="login.html">Sign In</a>
+<a class="font-data-label text-data-label text-on-surface-variant opacity-60 hover:text-primary transition-colors" href="mailto:xty16631790636@163.com">Feedback</a>
+</div>
+</footer>
+
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const interactionLayer = document.getElementById('interaction-layer');
+            document.body.addEventListener('click', (e) => {
+                if (e.target.closest('button, a, input, label')) return;
+                const pulse = document.createElement('div');
+                pulse.className = 'interactive-pulse pulse-anim';
+                pulse.style.left = e.clientX + 'px';
+                pulse.style.top = e.clientY + 'px';
+                interactionLayer.appendChild(pulse);
+                setTimeout(() => pulse.remove(), 1500);
+            });
+        });
+    </script>
+</body></html>
