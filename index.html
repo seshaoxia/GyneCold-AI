@@ -163,12 +163,8 @@
 </div>
 <div class="col-span-1 lg:col-span-5 hidden lg:flex justify-end relative h-[500px]">
 <div class="w-full h-full glass-panel rounded-2xl flex items-center justify-center relative overflow-hidden group">
-<div class="absolute inset-0 bg-gradient-to-tr from-surface/50 to-transparent z-10"></div>
-<div class="absolute inset-0 flex items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity duration-700">
-<div class="w-64 h-64 border border-primary/20 rounded-full animate-[spin_20s_linear_infinite] absolute"></div>
-<div class="w-48 h-48 border border-tertiary-fixed-dim/30 rounded-full animate-[spin_15s_linear_infinite_reverse] absolute"></div>
-<span class="material-symbols-outlined text-6xl text-primary-container/80 z-20 font-light">hub</span>
-</div>
+<div class="absolute inset-0 bg-gradient-to-tr from-surface/50 to-transparent z-10 pointer-events-none"></div>
+<canvas id="omics-canvas" class="w-full h-full absolute inset-0"></canvas>
 </div>
 </div>
 </div>
@@ -279,4 +275,270 @@
             });
         });
     </script>
+
+<!-- Three.js Multi-Omics 3D Visualization -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.167.0/build/three.module.js"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+const canvas = document.getElementById('omics-canvas');
+if (!canvas) console.warn('omics canvas not found');
+if (canvas) {
+const rect = canvas.parentElement.getBoundingClientRect();
+const w = rect.width || 500;
+const h = rect.height || 500;
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.setSize(w, h);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 50);
+camera.position.set(0, 1, 7);
+camera.lookAt(0, 0, 0);
+
+const ambient = new THREE.AmbientLight(0xffffff, 0.15);
+scene.add(ambient);
+const dirLight = new THREE.DirectionalLight(0xffb347, 0.5);
+dirLight.position.set(2, 3, 4);
+scene.add(dirLight);
+
+// ─── 1. DNA Double Helix ────────────────────────────
+const helixGroup = new THREE.Group();
+const turns = 4, height = 5, radius = 1.3, segs = turns * 36;
+const pts1 = [], pts2 = [];
+
+for (let i = 0; i <= segs; i++) {
+  const t = i / segs;
+  const a = t * Math.PI * 2 * turns;
+  const y = (t - 0.5) * height;
+  pts1.push(new THREE.Vector3(Math.cos(a) * radius, y, Math.sin(a) * radius));
+  pts2.push(new THREE.Vector3(Math.cos(a + Math.PI) * radius, y, Math.sin(a + Math.PI) * radius));
+}
+
+const mat = new THREE.LineBasicMaterial({ color: 0xffb347, transparent: true, opacity: 0.4 });
+const line1 = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts1), mat);
+const line2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts2), mat.clone());
+line2.material.color.setHex(0xffd7a9);
+line2.material.opacity = 0.3;
+helixGroup.add(line1, line2);
+
+// Base pairs (rungs)
+const rungMat = new THREE.LineBasicMaterial({ color: 0xffb347, transparent: true, opacity: 0.12 });
+for (let i = 0; i <= segs; i += 4) {
+  const t = i / segs;
+  const a = t * Math.PI * 2 * turns;
+  const y = (t - 0.5) * height;
+  const p1 = new THREE.Vector3(Math.cos(a) * radius, y, Math.sin(a) * radius);
+  const p2 = new THREE.Vector3(Math.cos(a + Math.PI) * radius, y, Math.sin(a + Math.PI) * radius);
+  const geo = new THREE.BufferGeometry().setFromPoints([p1, p2]);
+  const rung = new THREE.Line(geo, rungMat);
+  helixGroup.add(rung);
+}
+
+// Nodes on helix
+const nodeMat = new THREE.MeshStandardMaterial({
+  color: 0xffb347, emissive: 0xffb347, emissiveIntensity: 0.15, transparent: true, opacity: 0.5
+});
+for (let i = 0; i <= segs; i += 5) {
+  const t = i / segs;
+  const a = t * Math.PI * 2 * turns;
+  const y = (t - 0.5) * height;
+  for (const side of [0, Math.PI]) {
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), nodeMat.clone());
+    sphere.position.set(Math.cos(a + side) * radius, y, Math.sin(a + side) * radius);
+    helixGroup.add(sphere);
+  }
+}
+scene.add(helixGroup);
+
+// ─── 2. PPI Network (Protein Nodes) ─────────────────
+const ppiGroup = new THREE.Group();
+const ppiNodes = [];
+const numPPI = 40;
+const ppiColors = [0xffb347, 0xffb95a, 0xffd7a9, 0xcfbdfe, 0xffb59c];
+
+for (let i = 0; i < numPPI; i++) {
+  const theta = Math.random() * Math.PI * 2;
+  const phi = Math.acos(2 * Math.random() - 1);
+  const r = 1.8 + Math.random() * 1.5;
+  const x = r * Math.sin(phi) * Math.cos(theta);
+  const y = r * Math.cos(phi);
+  const z = r * Math.sin(phi) * Math.sin(theta);
+  const size = 0.03 + Math.random() * 0.05;
+  const col = ppiColors[Math.floor(Math.random() * ppiColors.length)];
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(size, 6, 6),
+    new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 0.1, transparent: true, opacity: 0.4 + Math.random() * 0.3 })
+  );
+  mesh.position.set(x, y, z);
+  mesh.userData = { basePos: new THREE.Vector3(x, y, z), speed: 0.2 + Math.random() * 0.3, phase: Math.random() * Math.PI * 2 };
+  ppiGroup.add(mesh);
+  ppiNodes.push(mesh);
+}
+
+// PPI edges
+const edgeMat = new THREE.LineBasicMaterial({ color: 0xffb347, transparent: true, opacity: 0.04 });
+for (let i = 0; i < numPPI * 0.4; i++) {
+  const a = Math.floor(Math.random() * numPPI);
+  const b = Math.floor(Math.random() * numPPI);
+  if (a === b) continue;
+  const pA = ppiGroup.children[a].position;
+  const pB = ppiGroup.children[b].position;
+  if (pA.distanceTo(pB) > 2.0) continue;
+  const geo = new THREE.BufferGeometry().setFromPoints([pA, pB]);
+  const edge = new THREE.Line(geo, edgeMat.clone());
+  ppiGroup.add(edge);
+}
+scene.add(ppiGroup);
+
+// ─── 3. Multi-Omics Particle Streams ────────────────
+const streamGroup = new THREE.Group();
+const numStreams = 4;
+const streamColors = [0xffb347, 0xcfbdfe, 0xffb59c, 0x8A2BE2];
+const streamLabels = ['RNA', 'EPI', 'META', 'GUT'];
+const allStreamParticles = [];
+
+for (let s = 0; s < numStreams; s++) {
+  const angle = (s / numStreams) * Math.PI * 2;
+  const origin = new THREE.Vector3(Math.cos(angle) * 3.5, Math.sin(angle * 0.7) * 1.2, Math.sin(angle) * 2.5);
+  const count = 25;
+  const particles = [];
+  for (let i = 0; i < count; i++) {
+    const p = new THREE.Mesh(
+      new THREE.SphereGeometry(0.02, 4, 4),
+      new THREE.MeshStandardMaterial({
+        color: streamColors[s % streamColors.length],
+        emissive: streamColors[s % streamColors.length],
+        emissiveIntensity: 0.2,
+        transparent: true,
+        opacity: 0.3 + Math.random() * 0.4
+      })
+    );
+    const t = Math.random();
+    p.userData = {
+      origin: origin.clone(),
+      t: t,
+      speed: 0.003 + Math.random() * 0.005,
+      offset: new THREE.Vector3(
+        (Math.random() - 0.5) * 0.5,
+        (Math.random() - 0.5) * 0.5,
+        (Math.random() - 0.5) * 0.5
+      )
+    };
+    // Start at origin
+    p.position.copy(origin);
+    streamGroup.add(p);
+    particles.push(p);
+    allStreamParticles.push(p);
+  }
+}
+scene.add(streamGroup);
+
+// ─── 4. Floating ambient particles ──────────────────
+const particleCount = 200;
+const particlesGeom = new THREE.BufferGeometry();
+const posArray = new Float32Array(particleCount * 3);
+const speeds = [];
+for (let i = 0; i < particleCount; i++) {
+  posArray[i * 3] = (Math.random() - 0.5) * 12;
+  posArray[i * 3 + 1] = (Math.random() - 0.5) * 8;
+  posArray[i * 3 + 2] = (Math.random() - 0.5) * 6;
+  speeds.push(0.001 + Math.random() * 0.003);
+}
+particlesGeom.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+const particleSystem = new THREE.Points(
+  particlesGeom,
+  new THREE.PointsMaterial({ color: 0xffb347, size: 0.015, transparent: true, opacity: 0.15 })
+);
+scene.add(particleSystem);
+
+// ─── Mouse Interaction ──────────────────────────────
+const mouse = new THREE.Vector2(0, 0);
+canvas.addEventListener('mousemove', (e) => {
+  const rect2 = canvas.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect2.left) / rect2.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect2.top) / rect2.height) * 2 + 1;
+});
+canvas.addEventListener('mouseleave', () => { mouse.set(0, 0); });
+
+// ─── Animation Loop ─────────────────────────────────
+let time = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  time += 0.01;
+
+  // Helix rotation & float
+  helixGroup.rotation.y = Math.sin(time * 0.1) * 0.2 + time * 0.08;
+  helixGroup.position.y = Math.sin(time * 0.15) * 0.3;
+
+  // PPI nodes: gentle gravitational pull toward mouse
+  ppiNodes.forEach((node, i) => {
+    const base = node.userData.basePos;
+    const wobble = Math.sin(time * node.userData.speed + node.userData.phase) * 0.04;
+    const mx = mouse.x * 0.15;
+    const my = mouse.y * 0.15;
+    node.position.x = base.x + wobble + mx * (0.5 + Math.sin(node.userData.phase) * 0.3);
+    node.position.y = base.y + wobble * 0.5 + my * (0.5 + Math.cos(node.userData.phase) * 0.3);
+    node.position.z = base.z + wobble * 0.3 + mx * 0.1;
+    // Pulse opacity on hover
+    const dist = Math.sqrt(mouse.x * mouse.x + mouse.y * mouse.y);
+    if (dist < 0.3) {
+      const intensity = (1 - dist / 0.3) * 0.6;
+      node.material.emissiveIntensity = 0.1 + intensity;
+      node.material.opacity = 0.4 + intensity;
+    } else {
+      node.material.emissiveIntensity = 0.1;
+      node.material.opacity = 0.5;
+    }
+  });
+
+  // Particle streams: spiral toward center
+  allStreamParticles.forEach((p) => {
+    p.userData.t += p.userData.speed;
+    let t2 = p.userData.t;
+    if (t2 > 1) { t2 = 0; p.userData.t = 0; }
+    // Bezier-like curve from origin to center (0,0,0)
+    const o = p.userData.origin;
+    const ox = o.x * (1 - t2) + t2 * (Math.sin(t2 * Math.PI * 4) * 0.15);
+    const oy = o.y * (1 - t2) + t2 * (Math.cos(t2 * Math.PI * 3) * 0.15);
+    const oz = o.z * (1 - t2) + t2 * 0;
+    p.position.set(ox + p.userData.offset.x * (1 - t2), oy + p.userData.offset.y * (1 - t2), oz + p.userData.offset.z * (1 - t2));
+    // Pulse near center
+    p.material.opacity = 0.2 + (1 - t2) * 0.5;
+    p.scale.setScalar(0.5 + (1 - t2) * 1.0);
+  });
+
+  // Ambient particles
+  const pos = particleSystem.geometry.attributes.position;
+  for (let i = 0; i < particleCount; i++) {
+    pos.array[i * 3 + 1] += speeds[i];
+    if (pos.array[i * 3 + 1] > 4) pos.array[i * 3 + 1] = -4;
+  }
+  pos.needsUpdate = true;
+
+  camera.position.x += (mouse.x * 0.5 - camera.position.x) * 0.02;
+  camera.position.y += (mouse.y * 0.3 - camera.position.y) * 0.02;
+  camera.lookAt(0, 0, 0);
+
+  renderer.render(scene, camera);
+}
+animate();
+
+// Resize handler
+window.addEventListener('resize', () => {
+  const r2 = canvas.parentElement.getBoundingClientRect();
+  renderer.setSize(r2.width, r2.height);
+  camera.aspect = r2.width / r2.height;
+  camera.updateProjectionMatrix();
+});
+}
+</script>
+
 </body></html>
